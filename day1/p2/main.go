@@ -7,7 +7,7 @@ import (
 	"regexp"
 )
 
-const INPUT = "../input_mytest.txt"
+const INPUT = "../input.txt"
 
 func main() {
 	log.Print("start")
@@ -46,18 +46,22 @@ func main() {
 		log.Printf("got %s", line)
 		digits := re.FindAllString(line, -1)
 		log.Printf(" first %s last %s: + %d", digits[0], digits[len(digits)-1], w2n[digits[0]]*10 + w2n[digits[len(digits)-1]])
-		res += w2n[digits[0]]*10 + w2n[digits[len(digits)-1]]
+		// res += w2n[digits[0]]*10 + w2n[digits[len(digits)-1]]
 		// alt, just to check
-		// lfnt5 was 55 for the p1: first == last
 		ss := re1.FindStringSubmatch(line)
 		if len(ss) != 3 {
-			log.Printf(" *** check: only 1, ss %v", ss[1:])
-			continue
+		  // lfnt5 was 55 for the p1: first == last
+			log.Printf(" *** check: only 1, ss %v", ss)
+		} else {
+  		first, last := ss[1], ss[2]
+	  	if first != digits[0] || last != digits[len(digits)-1] {
+		  	// startfrom6,must_end_in_one_:xxxonetwoneetc: 1st stumbles on "twone"
+			  log.Printf(" *** check: mismatch, ss %v", ss[1:])
+			  res += w2n[ss[1]]*10 + w2n[ss[2]]
+			  continue
+			}
 		}
-		first, last := ss[1], ss[2]
-		if first != digits[0] || last != digits[len(digits)-1] {
-			log.Printf(" *** check: mismatch, ss %v", ss[1:])
-		}
+		res += w2n[digits[0]]*10 + w2n[digits[len(digits)-1]]
 	}
-	log.Printf("done, res: %d", res)  // 53551 is not ok :)
+	log.Printf("done, res: %d", res)  // 53551 is not ok, 53539 is it :)
 }
