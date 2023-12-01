@@ -21,8 +21,9 @@ func main() {
 	res := 0
 	for scanner.Scan() {
 		line := scanner.Text()
-		// log.Printf("got %s", line)
+		log.Printf("got %s", line)
 		digits := re.FindAllString(line, -1)
+    log.Printf(" first %s last %s", digits[0], digits[len(digits)-1])
 		// alt with re1 := regexp.MustCompile(`(\d).*(\d)`)
 		// ss := re1.FindStringSubmatch("p1a2ra33no4a")
 		// first, last := ss[1], ss[2]

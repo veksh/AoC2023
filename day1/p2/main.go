@@ -7,7 +7,7 @@ import (
 	"regexp"
 )
 
-const INPUT = "../input.txt"
+const INPUT = "../input_mytest.txt"
 
 func main() {
 	log.Print("start")
@@ -16,8 +16,9 @@ func main() {
 		log.Fatalf("error opening file: %v", err)
 	}
 	defer f.Close()
-	// re := regexp.MustCompile(`\d`)
 	re := regexp.MustCompile(`(one|two|three|four|five|six|seven|eight|nine|[1-9])`)
+	digstr := "(one|two|three|four|five|six|seven|eight|nine|[1-9])"
+	re1 := regexp.MustCompile(digstr + ".*" + digstr)
 	w2n := map[string]int{
 		"one": 1,
 		"two": 2,
@@ -44,11 +45,19 @@ func main() {
 		line := scanner.Text()
 		log.Printf("got %s", line)
 		digits := re.FindAllString(line, -1)
-		// alt with re1 := regexp.MustCompile(`(\d).*(\d)`)
-		// ss := re1.FindStringSubmatch("p1a2ra33no4a")
-		// first, last := ss[1], ss[2]
-		log.Printf(" first %s last %s", digits[0], digits[len(digits)-1])
+		log.Printf(" first %s last %s: + %d", digits[0], digits[len(digits)-1], w2n[digits[0]]*10 + w2n[digits[len(digits)-1]])
 		res += w2n[digits[0]]*10 + w2n[digits[len(digits)-1]]
+		// alt, just to check
+		// lfnt5 was 55 for the p1: first == last
+		ss := re1.FindStringSubmatch(line)
+		if len(ss) != 3 {
+			log.Printf(" *** check: only 1, ss %v", ss[1:])
+			continue
+		}
+		first, last := ss[1], ss[2]
+		if first != digits[0] || last != digits[len(digits)-1] {
+			log.Printf(" *** check: mismatch, ss %v", ss[1:])
+		}
 	}
-	log.Printf("done, res: %d", res)  // 55017 is ok
+	log.Printf("done, res: %d", res)  // 53551 is not ok :)
 }
