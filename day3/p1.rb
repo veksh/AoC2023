@@ -2,10 +2,6 @@
 
 FILE_NAME = "input.txt"
 
-def l2numpos(l)
-  return [[0, 1]]
-end
-
 # File.open(FILE_NAME).each_line {|l| puts l}
 # IO.foreach(FILE_NAME) {|line|
 # lines = IO.readlines(FILE_NAME)
