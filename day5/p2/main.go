@@ -9,7 +9,7 @@ import (
 	"strings"
 )
 
-const FILE_NAME = "../input_test.txt"
+const FILE_NAME = "../input_synt1.txt"
 
 func strs2ints(s []string) []int {
 	res := []int{}
