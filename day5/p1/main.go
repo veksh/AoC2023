@@ -8,7 +8,7 @@ import (
 	"strings"
 )
 
-const FILE_NAME = "../input_test.txt"
+const FILE_NAME = "../input.txt"
 
 func strs2ints(s []string) []int {
 	res := []int{}
@@ -19,7 +19,7 @@ func strs2ints(s []string) []int {
 	return res
 }
 
-func readData(fname string) [][][]int {
+func readData(fname string) (seeds []int, maps [][][]int) {
 	f, err := os.Open(fname)
 	if err != nil {
 		fmt.Println("error opening file:", err)
@@ -27,11 +27,11 @@ func readData(fname string) [][][]int {
 	}
 	scanner := bufio.NewScanner(f)
 	scanner.Scan()
-	seeds := strs2ints(strings.Fields(scanner.Text())[1:])
+	seeds = strs2ints(strings.Fields(scanner.Text())[1:])
 	fmt.Println("seeds:", seeds)
 	scanner.Scan()
 
-	maps := [][][]int{}
+	maps = [][][]int{}
 
 	for {
 		if ! scanner.Scan() {
@@ -53,9 +53,30 @@ func readData(fname string) [][][]int {
 		fmt.Println("  ranges:", rangeMap)
 		maps = append(maps, rangeMap)
 	}
-	return maps
+	return seeds, maps
+}
+
+func mapOne(n int, ranges [][]int) int {
+	for _, r := range(ranges) {
+		if n >= r[1] && n < r[1] + r[2] {
+			return n - r[1] + r[0]
+		}
+	}
+	return n
 }
 
 func main() {
-	fmt.Println(readData(FILE_NAME))
+	seeds, maps := readData(FILE_NAME)
+	res := -1
+	for _, s := range(seeds) {
+		f := s
+		for _, m := range(maps) {
+			f = mapOne(f, m)
+		}
+		fmt.Printf("%d => %d\n", s, f)
+		if res == -1 || f < res {
+			res = f
+		}
+	}
+	fmt.Println("ans:", res)
 }
