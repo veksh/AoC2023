@@ -77,6 +77,7 @@ func mapIntervals(intervals [][]int, ranges[][]int) [][]int {
 	fmt.Println("mapping src", intervals, "via", ranges)
 	for _, se := range(intervals) {
 		iStart, iLength := se[0], se[1]
+		mappedParts := [][]int{}
 		for _, rng := range(ranges) {
 			rDest, rStart, rLength := rng[0], rng[1], rng[2]
 			if iStart <= rStart + rLength && iStart + iLength >= rStart {
@@ -86,7 +87,23 @@ func mapIntervals(intervals [][]int, ranges[][]int) [][]int {
 				fmt.Printf(" hit for (%d + %d) map (%d + %d): overlap (%d + %d) -> (%d + %d)\n",
 					iStart, iLength, rStart, rLength, oStart, oLength, mStart, oLength)
 				res = append(res, []int{mStart, oLength})
+				mappedParts = append(mappedParts, []int{oStart, oLength})
 			}
+		}
+		if len(mappedParts) > 0 {
+			sort.Slice(mappedParts, func(i, j int) bool {return mappedParts[i][0] < mappedParts[j][0]})
+			prevEnd := iStart
+			mappedParts = append(mappedParts, []int{iStart + iLength - 1, 1})
+			for _, mp := range(mappedParts) {
+				if mp[0] > prevEnd {
+					fmt.Printf(" unmapped: (%d + %d)\n", prevEnd, mp[0] - prevEnd)
+					res = append(res, []int{prevEnd, mp[0] - prevEnd})
+				}
+				prevEnd = mp[0] + mp[1]
+			}
+		} else {
+			fmt.Printf(" interval (%d + %d) is fully unmapped", iStart, iLength)
+			res = append(res, []int{iStart, iLength})
 		}
 	}
 	return res
