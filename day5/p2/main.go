@@ -9,7 +9,7 @@ import (
 	"strings"
 )
 
-const FILE_NAME = "../input_test.txt"
+const FILE_NAME = "../input.txt"
 
 func strs2ints(s []string) []int {
 	res := []int{}
@@ -102,7 +102,7 @@ func mapIntervals(intervals [][]int, ranges[][]int) [][]int {
 				prevEnd = mp[0] + mp[1]
 			}
 		} else {
-			fmt.Printf(" interval (%d + %d) is fully unmapped", iStart, iLength)
+			fmt.Printf(" interval (%d + %d) is fully unmapped\n", iStart, iLength)
 			res = append(res, []int{iStart, iLength})
 		}
 	}
@@ -117,4 +117,11 @@ func main() {
 		intervals = mapIntervals(intervals, m)
 		fmt.Println(intervals)
 	}
+	res := intervals[0][0]
+	for _,ip := range(intervals) {
+		if ip[0] < res {
+			res = ip[0]
+		}
+	}
+	fmt.Println("answer is", res)
 }
