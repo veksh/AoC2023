@@ -9,7 +9,7 @@ import (
 	"strings"
 )
 
-const FILE_NAME = "../input_synt1.txt"
+const FILE_NAME = "../input.txt"
 
 func strs2ints(s []string) []int {
 	res := []int{}
@@ -93,19 +93,19 @@ func mapIntervals(intervals [][]int, ranges[][]int) [][]int {
 		if len(mappedParts) > 0 {
 			sort.Slice(mappedParts, func(i, j int) bool {return mappedParts[i][0] < mappedParts[j][0]})
 			prevEnd := iStart
-			mappedParts = append(mappedParts, []int{iStart + iLength - 1, 1})
-			sumLen := -1
+			mappedParts = append(mappedParts, []int{iStart + iLength, 0})
+			sumLen := 0
 			for _, mp := range(mappedParts) {
 				sumLen += mp[1]
 				if mp[0] > prevEnd {
-					fmt.Printf(" unmapped: (%d + %d)\n", prevEnd, mp[0] - prevEnd)
+					fmt.Printf(" unmapped: (%d + %d)\n", prevEnd, mp[0] - prevEnd )
 					res = append(res, []int{prevEnd, mp[0] - prevEnd})
 					sumLen += mp[0] - prevEnd
 				}
 				prevEnd = mp[0] + mp[1]
 			}
 			if sumLen != iLength {
-				fmt.Printf(" *** warn: %d unaccounted\n", sumLen - 1 - iLength)
+				fmt.Printf(" *** warn: %d unaccounted\n", sumLen - iLength)
 			}
 		} else {
 			fmt.Printf(" interval (%d + %d) is fully unmapped\n", iStart, iLength)

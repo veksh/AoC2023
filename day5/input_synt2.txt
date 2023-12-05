@@ -1,0 +1,4 @@
+seeds: 10 10
+
+mylo-to-mochalo map:
+0 15 2
