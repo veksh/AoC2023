@@ -91,16 +91,19 @@ func mapIntervals(intervals [][]int, ranges[][]int) [][]int {
 			}
 		}
 		if len(mappedParts) > 0 {
+			if mappedParts[0][1] == iLength {
+				continue
+			}
 			sort.Slice(mappedParts, func(i, j int) bool {return mappedParts[i][0] < mappedParts[j][0]})
 			prevEnd := iStart
 			mappedParts = append(mappedParts, []int{iStart + iLength, 0})
 			sumLen := 0
 			for _, mp := range(mappedParts) {
 				sumLen += mp[1]
-				if mp[0] > prevEnd {
-					fmt.Printf(" unmapped: (%d + %d)\n", prevEnd, mp[0] - prevEnd )
-					res = append(res, []int{prevEnd, mp[0] - prevEnd})
-					sumLen += mp[0] - prevEnd
+				if uLen := mp[0] - prevEnd; uLen > 0 {
+					fmt.Printf(" unmapped: (%d + %d)\n", prevEnd, uLen )
+					res = append(res, []int{prevEnd, uLen})
+					sumLen += uLen
 				}
 				prevEnd = mp[0] + mp[1]
 			}
@@ -129,5 +132,5 @@ func main() {
 			res = ip[0]
 		}
 	}
-	fmt.Println("answer is", res)
+	fmt.Println("answer is", res) // 183085156 is still wrong :)
 }
