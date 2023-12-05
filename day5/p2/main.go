@@ -72,27 +72,32 @@ func mapOne(n int, ranges [][]int) int {
 	return n
 }
 
-// func mapInterval(start int, end int, ranges[][]int) []int {
-
-// }
+func mapIntervals(intervals [][]int, ranges[][]int) [][]int {
+	res := [][]int{}
+	fmt.Println("mapping src", intervals, "via", ranges)
+	for _, se := range(intervals) {
+		iStart, iLength := se[0], se[1]
+		for _, rng := range(ranges) {
+			rDest, rStart, rLength := rng[0], rng[1], rng[2]
+			if iStart <= rStart + rLength && iStart + iLength >= rStart {
+				oStart := max(iStart, rStart)
+				oLength := min(iStart + iLength, rStart + rLength) - oStart
+				mStart := oStart - rStart + rDest
+				fmt.Printf(" hit for (%d + %d) map (%d + %d): overlap (%d + %d) -> (%d + %d)\n",
+					iStart, iLength, rStart, rLength, oStart, oLength, mStart, oLength)
+				res = append(res, []int{mStart, oLength})
+			}
+		}
+	}
+	return res
+}
 
 func main() {
-	seedIntervals, maps := readData(FILE_NAME)
-	fmt.Println("seed intervals:", seedIntervals)
+	intervals, maps := readData(FILE_NAME)
 	fmt.Println("range maps:", maps)
-	// for _, m := range(maps) {
-
-	// }
-
-	// for _, s := range(seedIntervals) {
-	// 	f := s
-	// 	for _, m := range(maps) {
-	// 		f = mapOne(f, m)
-	// 	}
-	// 	fmt.Printf("%d => %d\n", s, f)
-	// 	if res == -1 || f < res {
-	// 		res = f
-	// 	}
-	// }
-	// fmt.Println("ans:", res)
+	fmt.Println("seed intervals:", intervals)
+	for _, m := range(maps) {
+		intervals = mapIntervals(intervals, m)
+		fmt.Println(intervals)
+	}
 }
