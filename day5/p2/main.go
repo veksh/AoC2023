@@ -118,13 +118,26 @@ func mapIntervals(intervals [][]int, ranges[][]int) [][]int {
 	return res
 }
 
+func intervalSum(intervals [][]int) (res int) {
+	for _, interval := range(intervals) {
+		res += interval[1]
+	}
+	return res
+}
+
 func main() {
 	intervals, maps := readData(FILE_NAME)
 	fmt.Println("range maps:", maps)
 	fmt.Println("seed intervals:", intervals)
+	iss := intervalSum(intervals)
 	for _, m := range(maps) {
 		intervals = mapIntervals(intervals, m)
 		fmt.Println(intervals)
+		isn := intervalSum(intervals)
+		if isn != iss {
+			fmt.Println("sum mismatch:", isn, "vs", iss)
+			os.Exit(-1)
+		}
 	}
 	res := intervals[0][0]
 	for _,ip := range(intervals) {
