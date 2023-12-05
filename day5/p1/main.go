@@ -19,8 +19,8 @@ func strs2ints(s []string) []int {
 	return res
 }
 
-func main() {
-	f, err := os.Open(FILE_NAME)
+func readData(fname string) [][][]int {
+	f, err := os.Open(fname)
 	if err != nil {
 		fmt.Println("error opening file:", err)
 		os.Exit(1)
@@ -30,8 +30,32 @@ func main() {
 	seeds := strs2ints(strings.Fields(scanner.Text())[1:])
 	fmt.Println("seeds:", seeds)
 	scanner.Scan()
-	for scanner.Scan() {
+
+	maps := [][][]int{}
+
+	for {
+		if ! scanner.Scan() {
+			break
+		}
 		txt := scanner.Text()
-		fmt.Println("line:", txt)
+		fmt.Println("map name:", txt)
+		rangeMap := [][]int{}
+		for {
+			if !scanner.Scan() {
+				break
+			}
+			txt = scanner.Text()
+			if txt == "" {
+				break
+			}
+			rangeMap = append(rangeMap, strs2ints(strings.Fields(txt)))
+		}
+		fmt.Println("  ranges:", rangeMap)
+		maps = append(maps, rangeMap)
 	}
+	return maps
+}
+
+func main() {
+	fmt.Println(readData(FILE_NAME))
 }
