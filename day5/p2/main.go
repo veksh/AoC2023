@@ -131,31 +131,43 @@ func mapIntervals(intervals [][]int, ranges[][]int) [][]int {
 func mapIntervals2(intervals [][]int, ranges[][]int) [][]int {
 	res := [][]int{}
 	fmt.Println("mapping src", intervals, "via", ranges)
-	for _, se := range(intervals) {
-		iStart, iLength := se[0], se[1]
-		for _, rng := range(ranges) {
-			rDest, rStart, rLength := rng[0], rng[1], rng[2]
-			if iStart <= rStart + rLength && iStart + iLength >= rStart {
-				oStart := max(iStart, rStart)
-				oLength := min(iStart + iLength, rStart + rLength) - oStart
-				mStart := oStart - rStart + rDest
-				fmt.Printf(" hit for (%d + %d) map (%d + %d): overlap (%d + %d) -> (%d + %d)\n",
-					iStart, iLength, rStart, rLength, oStart, oLength, mStart, oLength)
-				res = append(res, []int{mStart, oLength})
-				if oLength < iLength {
-					fmt.Printf("  partial match: %d of %d\n", oLength, iLength)
-					if ll := oStart - iStart; ll > 0 {
-						intervals = append(intervals, []int{iStart, ll})
-						fmt.Printf("  appending l (%d + %d)\n", iStart, ll)
+	queue := intervals
+	for len(queue) > 0 {
+		newQ := [][]int{}
+		for _, se := range(queue) {
+			iStart, iLength := se[0], se[1]
+			hit := false
+			for _, rng := range(ranges) {
+				rDest, rStart, rLength := rng[0], rng[1], rng[2]
+				// ??? check conditions
+				if iStart < rStart + rLength && iStart + iLength > rStart {
+					oStart := max(iStart, rStart)
+					oLength := min(iStart + iLength, rStart + rLength) - oStart
+					mStart := oStart - rStart + rDest
+					fmt.Printf(" hit for (%d + %d) map (%d + %d): overlap (%d + %d) -> (%d + %d)\n",
+						iStart, iLength, rStart, rLength, oStart, oLength, mStart, oLength)
+					res = append(res, []int{mStart, oLength})
+					if oLength < iLength {
+						fmt.Printf("  partial match: %d of %d\n", oLength, iLength)
+						if ll := oStart - iStart; ll > 0 {
+							newQ = append(newQ, []int{iStart, ll})
+							fmt.Printf("  appending l (%d + %d)\n", iStart, ll)
+						}
+						if rl := iStart + iLength - (oStart + oLength); rl > 0 {
+							newQ = append(newQ, []int{oStart + oLength, rl})
+							fmt.Printf("  appending r (%d + %d)\n", oStart + oLength, rl)
+						}
 					}
-					if rl := iStart + iLength - (oStart + oLength); rl > 0 {
-						intervals = append(intervals, []int{oStart + oLength, rl})
-						fmt.Printf("  appending r (%d + %d)\n", oStart + oLength, rl)
-					}
+					hit = true
+					break
 				}
-				break
+			}
+			if !hit {
+				fmt.Printf(" unmatched (%d + %d)\n", iStart, iLength)
+				res = append(res, []int{iStart, iLength})
 			}
 		}
+		queue = newQ
 	}
 	return res
 }
