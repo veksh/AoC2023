@@ -139,7 +139,6 @@ func mapIntervals2(intervals [][]int, ranges[][]int) [][]int {
 			hit := false
 			for _, rng := range(ranges) {
 				rDest, rStart, rLength := rng[0], rng[1], rng[2]
-				// ??? check conditions
 				if iStart < rStart + rLength && iStart + iLength > rStart {
 					oStart := max(iStart, rStart)
 					oLength := min(iStart + iLength, rStart + rLength) - oStart
@@ -149,13 +148,20 @@ func mapIntervals2(intervals [][]int, ranges[][]int) [][]int {
 					res = append(res, []int{mStart, oLength})
 					if oLength < iLength {
 						fmt.Printf("  partial match: %d of %d\n", oLength, iLength)
+						addl := 0
 						if ll := oStart - iStart; ll > 0 {
 							newQ = append(newQ, []int{iStart, ll})
 							fmt.Printf("  appending l (%d + %d)\n", iStart, ll)
+							addl += ll
 						}
 						if rl := iStart + iLength - (oStart + oLength); rl > 0 {
 							newQ = append(newQ, []int{oStart + oLength, rl})
 							fmt.Printf("  appending r (%d + %d)\n", oStart + oLength, rl)
+							addl += rl
+						}
+						if oLength + addl != iLength {
+							fmt.Printf("  oLength mismatch: still %d vs %d\n", oLength + addl, iLength)
+							os.Exit(1)
 						}
 					}
 					hit = true
