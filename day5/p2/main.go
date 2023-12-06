@@ -34,7 +34,8 @@ func readData(fname string) (seedIntervals [][]int, maps [][][]int) {
 		seedIntervals = append(seedIntervals, []int{seeds[i], seeds[i+1]})
 	}
 	sort.Slice(seedIntervals, func(i, j int) bool {return seedIntervals[i][0] < seedIntervals[j][0]})
-	fmt.Println("seeds:", seeds, "intervals:", seedIntervals)
+	fmt.Println("seeds:", seeds)
+	fmt.Println("seed intervals:", seedIntervals)
 	scanner.Scan()
 
 	maps = [][][]int{}
@@ -92,6 +93,7 @@ func mapIntervals(intervals [][]int, ranges[][]int) [][]int {
 		}
 		if len(mappedParts) > 0 {
 			if mappedParts[0][1] == iLength {
+				fmt.Printf("  fully mapped: (%d + %d)\n", mappedParts[0][0], mappedParts[0][1])
 				continue
 			}
 			sort.Slice(mappedParts, func(i, j int) bool {return mappedParts[i][0] < mappedParts[j][0]})
@@ -101,7 +103,7 @@ func mapIntervals(intervals [][]int, ranges[][]int) [][]int {
 			for _, mp := range(mappedParts) {
 				sumLen += mp[1]
 				if uLen := mp[0] - prevEnd; uLen > 0 {
-					fmt.Printf(" unmapped: (%d + %d)\n", prevEnd, uLen )
+					fmt.Printf("  unmapped: (%d + %d)\n", prevEnd, uLen )
 					res = append(res, []int{prevEnd, uLen})
 					sumLen += uLen
 				}
