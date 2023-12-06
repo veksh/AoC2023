@@ -132,18 +132,23 @@ func main() {
 	iss := intervalSum(intervals)
 	for _, m := range(maps) {
 		intervals = mapIntervals(intervals, m)
-		fmt.Println(intervals)
 		isn := intervalSum(intervals)
 		if isn != iss {
 			fmt.Println("sum mismatch:", isn, "vs", iss)
 			os.Exit(-1)
 		}
-	}
-	res := intervals[0][0]
-	for _,ip := range(intervals) {
-		if ip[0] < res {
-			res = ip[0]
+		// check overlaps
+		sort.Slice(intervals, func(i, j int) bool {return intervals[i][0] < intervals[j][0]})
+		fmt.Println("new intervals:", intervals)
+		prev := intervals[0][0] - 1
+		for i,in := range(intervals) {
+			if in[0] <= prev {
+				fmt.Println("*** warn: interval", i, "overlaps with prev")
+				os.Exit(-1)
+			}
+			prev = in[0] + in[1] - 1
 		}
 	}
-	fmt.Println("answer is", res) // 183085156 is still wrong :)
+	fmt.Println("final intervals:", intervals)
+	fmt.Println("answer is", intervals[0][0]) // 183085156 is still wrong :)
 }
