@@ -87,6 +87,9 @@ func mapIntervals(intervals [][]int, ranges[][]int) [][]int {
 				mStart := oStart - rStart + rDest
 				fmt.Printf(" hit for (%d + %d) map (%d + %d): overlap (%d + %d) -> (%d + %d)\n",
 					iStart, iLength, rStart, rLength, oStart, oLength, mStart, oLength)
+				if oStart < 0 || oLength <= 0 {
+					fmt.Printf(" *** warn: pathological split")
+				}
 				res = append(res, []int{mStart, oLength})
 				mappedParts = append(mappedParts, []int{oStart, oLength})
 			}
@@ -103,7 +106,10 @@ func mapIntervals(intervals [][]int, ranges[][]int) [][]int {
 			for _, mp := range(mappedParts) {
 				sumLen += mp[1]
 				if uLen := mp[0] - prevEnd; uLen > 0 {
-					fmt.Printf("  unmapped: (%d + %d)\n", prevEnd, uLen )
+					fmt.Printf("  unmapped: (%d + %d)\n", prevEnd, uLen)
+				  if prevEnd < 0 || uLen <= 0 {
+					  fmt.Printf(" *** warn: pathological unmapped")
+				  }
 					res = append(res, []int{prevEnd, uLen})
 					sumLen += uLen
 				}
