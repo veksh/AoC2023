@@ -6,6 +6,7 @@ from collections import Counter
 # "0" for stdin
 lines = open(sys.argv[1] if len(sys.argv) > 1 else "input_test.txt").read().splitlines()
 bets = {k: int(v) for k,v in [p.split() for p in lines]}
+# or use `map("J23456789TQKA".index, hand)`
 label_val = {l: i for i, l in enumerate(reversed("A, K, Q, T, 9, 8, 7, 6, 5, 4, 3, 2, J".split(", ")))}
 combo_val = {
   (1, 1, 1, 1, 1): 0,  # high card
@@ -26,10 +27,4 @@ def card2val(card):
   return chr(ord('A') + combo_val[tuple(cnts)]) + \
     "".join([chr(ord('A') + label_val[c]) for c in card])
 
-print(bets)
-print(label_val)
-print(combo_val)
-res = 0
-for i, c in enumerate(sorted(bets.keys(), key=card2val)):
-  res += (i+1)*bets[c]
-print("answer:", res)
+print(sum((i+1)*bets[c] for i, c in enumerate(sorted(bets.keys(), key=card2val))))
