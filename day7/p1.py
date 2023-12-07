@@ -1,10 +1,22 @@
 #!/usr/bin/python3
 
 import sys
+from collections import Counter
 
 # "0" for stdin
 lines = open(sys.argv[1] if len(sys.argv) > 1 else "input_test.txt").read().splitlines()
 bets = {k: int(v) for k,v in [p.split() for p in lines]}
-cards = {l: i for i, l in enumerate(reversed("A, K, Q, J, T, 9, 8, 7, 6, 5, 4, 3, 2".split(", ")))}
+label_val = {l: i for i, l in enumerate(reversed("A, K, Q, J, T, 9, 8, 7, 6, 5, 4, 3, 2".split(", ")))}
+# tuple(sorted(Counter([l for l in card]).values()))
+combo_val = {
+  (1, 1, 1, 1, 1): 0,  # high card
+  (1, 1, 1, 2):    1,  # one pair
+  (1, 2, 2):       2,  # two pair
+  (1, 1, 3):       3,  # three of a kind
+  (2, 3):          4,  # full house
+  (1, 4):          5,  # four of a kind
+  (5):             6   # five of a kind
+}
 print(bets)
-print(cards)
+print(label_val)
+print(combo_val)
