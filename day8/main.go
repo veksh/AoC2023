@@ -37,7 +37,18 @@ func readData(fh *os.File) (turns string, graph map[string][2]string) {
 func solve1(turns string, graph map[string][2]string) (res int) {
 	fmt.Println(turns)
 	fmt.Println(graph)
-	return 0
+	currNode, currTurnNo := "AAA", 0
+	for currNode != "ZZZ" {
+		res += 1
+		if turns[currTurnNo] == 'L' {
+			currNode = graph[currNode][0]
+		} else {
+			currNode = graph[currNode][1]
+		}
+		currTurnNo = (currTurnNo + 1) % len(turns)
+		fmt.Printf("round %d: node %s (%v), next turn %s\n", res, currNode, graph[currNode], string(turns[currTurnNo]))
+	}
+	return res
 }
 
 func main() {
