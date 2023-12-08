@@ -52,7 +52,7 @@ func solve1(turns string, graph map[string][2]string) (res int) {
 	return res
 }
 
-func solve2(turns string, graph map[string][2]string) (res int) {
+func solve2brute(turns string, graph map[string][2]string) (res int) {
 	currNodes, currTurnNo := []string{}, 0
 	for k := range(graph) {
 		if k[2] == 'A' {
@@ -78,18 +78,53 @@ func solve2(turns string, graph map[string][2]string) (res int) {
 		if allZ {
 			break
 		}
-		// if res % 1_000_000 == 0 {
+		if res % 1_000_000 == 0 {
 			fmt.Println("iteration", res, "nodes", currNodes)
-		// }
+		}
 	}
 	return res
 }
 
 
+
+func solve2(turns string, graph map[string][2]string) (res int) {
+
+	period := func(start string) int {
+		currNode, currTurnNo, res := start, 0, 0
+		for currNode[2] != 'Z' {
+			res += 1
+			if turns[currTurnNo] == 'L' {
+				currNode = graph[currNode][0]
+			} else {
+				currNode = graph[currNode][1]
+			}
+			currTurnNo = (currTurnNo + 1) % len(turns)
+			if res >= len(turns)*len(graph) {
+				panic("period overrun")
+			}
+		}
+		return res
+	}
+
+	startNodes := []string{}
+	for k := range(graph) {
+		if k[2] == 'A' {
+			startNodes = append(startNodes, k)
+		}
+	}
+
+	fmt.Println("startNodes:", startNodes)
+	for _, node := range(startNodes) {
+		period := period(node)
+		fmt.Printf("node %s: period %d\n", node, period)
+	}
+	return 0
+}
+
 func main() {
 	turns, graph := readData(getFH("input.txt"))
-	fmt.Println(turns)
-	fmt.Println(graph)
+	// fmt.Println(turns)
+	// fmt.Println(graph)
 	// fmt.Println("part1:", solve1(turns, graph))
 	fmt.Println("part2:", solve2(turns, graph))
 }
