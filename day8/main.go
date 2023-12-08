@@ -85,7 +85,16 @@ func solve2brute(turns string, graph map[string][2]string) (res int) {
 	return res
 }
 
+func GCD(a, b int) int {
+	for b != 0 {
+		a, b = b, a % b
+	}
+	return a
+}
 
+func LCM(a, b int) int {
+	return a * b / GCD(a, b)
+}
 
 func solve2(turns string, graph map[string][2]string) (res int) {
 
@@ -113,12 +122,14 @@ func solve2(turns string, graph map[string][2]string) (res int) {
 		}
 	}
 
+	res = 1
 	fmt.Println("startNodes:", startNodes)
 	for _, node := range(startNodes) {
 		period := period(node)
 		fmt.Printf("node %s: period %d\n", node, period)
+		res = LCM(res, period)
 	}
-	return 0
+	return res
 }
 
 func main() {
