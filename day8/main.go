@@ -6,15 +6,18 @@ import (
 	"os"
 )
 
-func getFH() *os.File {
-  fh := os.Stdin
+func getFH(defFileName string) *os.File {
+	if defFileName == "" && len(os.Args) == 1 {
+		return os.Stdin
+	}
+  fileName := defFileName
   if len(os.Args) > 1 {
-    var err error
-    fh, err = os.Open(os.Args[1])
-    if err != nil {
-      fmt.Println("error opening file:", err)
-      os.Exit(1)
-    }
+  	fileName = os.Args[1]
+  }
+  fh, err := os.Open(fileName)
+  if err != nil {
+    fmt.Println("error opening file:", err)
+    os.Exit(1)
   }
   return fh
 }
@@ -35,8 +38,6 @@ func readData(fh *os.File) (turns string, graph map[string][2]string) {
 }
 
 func solve1(turns string, graph map[string][2]string) (res int) {
-	fmt.Println(turns)
-	fmt.Println(graph)
 	currNode, currTurnNo := "AAA", 0
 	for currNode != "ZZZ" {
 		res += 1
@@ -52,6 +53,8 @@ func solve1(turns string, graph map[string][2]string) (res int) {
 }
 
 func main() {
-	turns, graph := readData(getFH())
-	fmt.Println(solve1(turns, graph))
+	turns, graph := readData(getFH("input.txt"))
+	fmt.Println(turns)
+	fmt.Println(graph)
+	fmt.Println("part1:", solve1(turns, graph))
 }
