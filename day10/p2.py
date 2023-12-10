@@ -26,19 +26,26 @@ else:
   sys.exit(1)
 print("move1:", move)
 
-pos = [spos[0] + move[0], spos[1] + move[1]]
-cnt = 1
-while field[pos[0]][pos[1]] != "S":
-  sym = field[pos[0]][pos[1]]
-  field[pos[0]][pos[1]] = "@"
-  if sym == "L" or sym == "7":
-    move[0], move[1] = move[1], move[0]
-  if sym == "J" or sym == "F":
-    move[0], move[1] = -1*move[1], -1*move[0]
+# pos = [spos[0] + move[0], spos[1] + move[1]]
+pos = [spos[0], spos[1]]
+cnt = 0
+m2s = {
+  (1,0):  '↓',
+  (0,1):  '→',
+  (-1,0): '↑',
+  (0,-1): '←'
+}
+
+while not (pos[0] == spos[0] and pos[1] == spos[1] and cnt > 0):
+  field[pos[0]][pos[1]] = m2s[tuple(move)]
   pos = (pos[0] + move[0], pos[1] + move[1])
+  sym = field[pos[0]][pos[1]]
+  if sym in "L7":
+    move[0], move[1] = move[1], move[0]
+  if sym in "JF":
+    move[0], move[1] = -1*move[1], -1*move[0]
   cnt += 1
-  # print("pos", pos, "move", move)
-field[spos[0]][spos[1]] = "@"
+
 print("count:", cnt, "answer 1:", cnt // 2)
 print()
 for r in range(0, len(field)):
