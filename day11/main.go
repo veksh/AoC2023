@@ -33,6 +33,13 @@ func readData(fh *os.File) [][]byte {
 	return starmap
 }
 
+func abs(a int) int {
+	if a > 0 {
+		return a
+	}
+	return -1*a
+}
+
 func main() {
 	starmap := readData(getFH("input.txt"))
 	emptycols := []int{}
@@ -68,4 +75,12 @@ func main() {
 		}
 	}
 	fmt.Println("allstars:", allstars)
+
+	res1 := 0
+	for i, s1 := range(allstars) {
+		for _, s2 := range(allstars[i+1:]) {
+			res1 += abs(s2[0] - s1[0]) + abs(s2[1] - s1[1])
+		}
+	}
+	fmt.Println("ans 1:", res1)
 }
