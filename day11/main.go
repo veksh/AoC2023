@@ -4,6 +4,7 @@ import (
 	"bufio"
 	"fmt"
 	"os"
+	"slices"
 )
 
 func getFH(defFileName string) *os.File {
@@ -46,4 +47,25 @@ func main() {
 		emptycols = append(emptycols, i)
 	}
 	fmt.Println("emptycols:", emptycols)
+
+  // {row, col} ie {y, x}
+	allstars := [][2]int{}
+	radd := 0
+	for r := 0; r < len(starmap); r++ {
+		if slices.Index(starmap[r], '#') == -1 {
+			radd += 1
+			continue
+		}
+		cadd := 0
+		for c := 0; c < len(starmap[0]); c++ {
+			if starmap[r][c] == '#' {
+				allstars = append(allstars, [2]int{r + radd, c + cadd})
+			} else {
+				if slices.Index(emptycols, c) != -1 {
+					cadd += 1
+				}
+			}
+		}
+	}
+	fmt.Println("allstars:", allstars)
 }
