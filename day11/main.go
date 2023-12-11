@@ -40,6 +40,36 @@ func abs(a int) int {
 	return -1*a
 }
 
+func solve(starmap [][]byte, emptycols []int, spaceadd int) int {
+	// {row, col} ie {y, x}
+	allstars := [][2]int{}
+	radd := 0
+	for r := 0; r < len(starmap); r++ {
+		if slices.Index(starmap[r], '#') == -1 {
+			radd += spaceadd - 1
+			continue
+		}
+		cadd := 0
+		for c := 0; c < len(starmap[0]); c++ {
+			if starmap[r][c] == '#' {
+				allstars = append(allstars, [2]int{r + radd, c + cadd})
+			} else {
+				if slices.Index(emptycols, c) != -1 {
+					cadd += spaceadd - 1
+				}
+			}
+		}
+	}
+
+	res := 0
+	for i, s1 := range(allstars) {
+		for _, s2 := range(allstars[i+1:]) {
+			res += abs(s2[0] - s1[0]) + abs(s2[1] - s1[1])
+		}
+	}
+	return res
+}
+
 func main() {
 	starmap := readData(getFH("input.txt"))
 	emptycols := []int{}
@@ -54,33 +84,6 @@ func main() {
 		emptycols = append(emptycols, i)
 	}
 	fmt.Println("emptycols:", emptycols)
-
-  // {row, col} ie {y, x}
-	allstars := [][2]int{}
-	radd := 0
-	for r := 0; r < len(starmap); r++ {
-		if slices.Index(starmap[r], '#') == -1 {
-			radd += 1
-			continue
-		}
-		cadd := 0
-		for c := 0; c < len(starmap[0]); c++ {
-			if starmap[r][c] == '#' {
-				allstars = append(allstars, [2]int{r + radd, c + cadd})
-			} else {
-				if slices.Index(emptycols, c) != -1 {
-					cadd += 1
-				}
-			}
-		}
-	}
-	fmt.Println("allstars:", allstars)
-
-	res1 := 0
-	for i, s1 := range(allstars) {
-		for _, s2 := range(allstars[i+1:]) {
-			res1 += abs(s2[0] - s1[0]) + abs(s2[1] - s1[1])
-		}
-	}
-	fmt.Println("ans 1:", res1)
+	fmt.Println("ans1:", solve(starmap, emptycols, 2))
+	fmt.Println("ans2:", solve(starmap, emptycols, 1_000_000))
 }
