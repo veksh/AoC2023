@@ -37,16 +37,39 @@ m2s = {
 }
 
 while not (pos[0] == spos[0] and pos[1] == spos[1] and cnt > 0):
-  field[pos[0]][pos[1]] = m2s[tuple(move)]
   pos = (pos[0] + move[0], pos[1] + move[1])
   sym = field[pos[0]][pos[1]]
+  prev_move = tuple(move)
   if sym in "L7":
     move[0], move[1] = move[1], move[0]
   if sym in "JF":
     move[0], move[1] = -1*move[1], -1*move[0]
   cnt += 1
+  field[pos[0]][pos[1]] = m2s[tuple(move)]
+  # if sym in "L7JF" and prev_move[0] != 0:
+  #   field[pos[0]][pos[1]] = "x"
+
+  # if sym in "L7JF" and prev_move[0] == -1:
+  #   field[pos[0]][pos[1]] = "x"
+  # if sym in "L7JF" and prev_move[0] == 1:
+  #   field[pos[0]][pos[1]] = "y"
 
 print("count:", cnt, "answer 1:", cnt // 2)
 print()
+
+res = 0
+for i,r in enumerate(field):
+  odd = 0
+  for j,c in enumerate(r):
+    if c in "←→↑↓":
+      odd -= 1
+    # if c in "↑x":
+    #   odd -= 1
+    # elif c in "↓y":
+    #   odd += 1
+    elif not c in "←→↑↓" and odd % 2 == 1:
+      res += 1
+      field[i][j]="@"
 for r in range(0, len(field)):
   print("".join(field[r]))
+print("answer 2:", res)
