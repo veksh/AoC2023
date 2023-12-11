@@ -34,5 +34,16 @@ func readData(fh *os.File) [][]byte {
 
 func main() {
 	starmap := readData(getFH("input.txt"))
-	fmt.Println(starmap)
+	emptycols := []int{}
+
+	outer:
+	for i := 0; i < len(starmap[0]); i++ {
+		for j := 0; j < len(starmap); j++ {
+			if starmap[j][i] == '#' {
+				continue outer
+			}
+		}
+		emptycols = append(emptycols, i)
+	}
+	fmt.Println("emptycols:", emptycols)
 }
