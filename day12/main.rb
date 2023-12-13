@@ -3,52 +3,55 @@
 DEBUG = false
 
 def numVariants(str, strPos, pattern, patPos)
+  # if memo.has_key?([strPos, patPos])
+  #   return memo[[strPos, patPos]]
+  # end
   puts "#{' ' * patPos}checking '#{pattern[patPos..]}' on '#{str[strPos..]}' (pos: #{strPos}, #{patPos})" if DEBUG
+  ret = -1
   if patPos >= pattern.length()
     # pattern ends: must be only ok left
     if str[strPos..].count("#") == 0
       puts " #{' ' * patPos}hit" if DEBUG
-      return 1
+      ret = 1
     else
       puts " #{' ' * patPos}miss" if DEBUG
-      return 0
+      ret = 0
     end
-  end
-  if strPos >= str.length()
+  elsif strPos >= str.length()
     # string ends, but pattern does not (as above)
-    return 0
-  end
-  if pattern[patPos] == "#"
+    ret = 0
+  elsif pattern[patPos] == "#"
     case str[strPos]
     when "#"
       return numVariants(str, strPos + 1, pattern, patPos + 1)
     when "."
       # return 0
       if patPos == 0 || pattern[patPos-1] != "#"
-        return numVariants(str, strPos + 1, pattern, patPos)
+        ret = numVariants(str, strPos + 1, pattern, patPos)
       else
         puts " #{' ' * patPos}wrong dot" if DEBUG
-        return 0
+        ret = 0
       end
     when "?"
       res = numVariants(str, strPos + 1, pattern, patPos + 1)
       if patPos == 0 || pattern[patPos-1] != "#"
         res += numVariants(str, strPos + 1, pattern, patPos)
       end
-      return res
+      ret = res
     end
   else
     # . between groups
     case str[strPos]
     when "#"
       puts " #{' ' * patPos}wrong hash" if DEBUG
-      return 0
+      ret = 0
     when "."
-      return numVariants(str, strPos + 1, pattern, patPos + 1)
+      ret = numVariants(str, strPos + 1, pattern, patPos + 1)
     when "?"
-      return numVariants(str, strPos + 1, pattern, patPos + 1)
+      ret = numVariants(str, strPos + 1, pattern, patPos + 1)
     end
   end
+  return ret
 end
 
 td = ARGF.readlines().map {|l| l.split()}.map {|a| [a[0], a[1].split(',').map(&:to_i)]}
