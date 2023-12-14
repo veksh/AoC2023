@@ -15,11 +15,11 @@ def rotateMaze(maze: list[str]) -> list[str]:
 def lineDiff(l1, l2: str) -> int:
   return sum(0 if l1[i] == l2[i] else 1 for i in range(0, len(l1)))
 
-def findMirr(maze: list[str]) -> int:
+def findSmudge(maze: list[str]) -> int:
   for lineno in range(0, len(maze)-1):
     if sum(lineDiff(maze[lineno-offset], maze[lineno+offset+1]) for offset in range(0, min(lineno+1, len(maze)-lineno-1))) == 1:
       return lineno
   return -1
 
-ans2 = sum(100*(findMirr(m) + 1) + (findMirr(rotateMaze(m))+1) for m in mazes)
+ans2 = sum(100*(findSmudge(m) + 1) + (findSmudge(rotateMaze(m))+1) for m in mazes)
 print("ans2:", ans2)
