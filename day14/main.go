@@ -34,21 +34,35 @@ func readData(fh *os.File) [][]byte {
 }
 
 func solve(field [][]byte) int {
-	return 0
+	res := 0
+	for c := 0; c < len(field[0]); c++ {
+		lastO := -1
+		for r := 0; r < len(field); r++ {
+			sym := field[r][c]
+			switch sym {
+			case 'O':
+				newPos := r
+				if newPos > lastO + 1 {
+					newPos = lastO + 1
+					field[newPos][c] = 'O'
+					field[r][c] = '.'
+				}
+				lastO = newPos
+				res += len(field) - newPos
+			case '#':
+				lastO = r
+			case '.':
+				continue
+			}
+		}
+	}
+	lo.ForEach(field, func (r []byte, i int) {fmt.Printf("%d: %v\n", i, string(r))})
+	return res
 }
 
 func main() {
 	platform := readData(getFH("input.txt"))
 	lo.ForEach(platform, func (r []byte, i int) {fmt.Printf("%d: %v\n", i, string(r))})
-
-	// outer:
-	// for i := 0; i < len(starmap[0]); i++ {
-	// 	for j := 0; j < len(starmap); j++ {
-	// 		if starmap[j][i] == '#' {
-	// 			continue outer
-	// 		}
-	// 	}
-	// 	emptycols = append(emptycols, i)
-	// }
+	fmt.Println("----")
 	fmt.Println("ans1:", solve(platform))
 }
