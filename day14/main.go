@@ -165,11 +165,13 @@ func main() {
 	platform := readData(getFH("input.txt"))
 	lo.ForEach(platform, func (r []byte, i int) {fmt.Printf("%d: %v\n", i, string(r))})
 	fmt.Println("----")
-	// fmt.Println("ans1:", solve1(platform))
-	for i := 1; i <= 5; i++ {
-		fmt.Println("# spin:", i)
-		load := spin(platform)
-		lo.ForEach(platform, func (r []byte, i int) {fmt.Printf("%d: %v\n", i, string(r))})
-		fmt.Println("- load:", load)
+	fmt.Println("ans1:", solve1(platform))
+	load := 0
+	for i := 1; i <= 1_000_000; i++ {
+		// fmt.Println("# spin:", i)
+		load = spin(platform)
+		// lo.ForEach(platform, func (r []byte, i int) {fmt.Printf("%d: %v\n", i, string(r))})
+		// fmt.Printf("- spin %d, load %d\n", i, load)
 	}
+	fmt.Println("ans2:", load)
 }
