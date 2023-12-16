@@ -1,3 +1,3 @@
 # my AoC 2023 solutions
 
-Alternating Go, Ruby and Python
+Alternating between Go, Ruby and Python
