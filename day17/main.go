@@ -43,7 +43,6 @@ var RDLU = [][2]int {
 type cell struct {
 	row  int
 	col  int
-	cost int
 	dir  byte
 	run  byte
 }
@@ -53,43 +52,44 @@ var VOID = struct{}{}
 
 func solve1(field [][]int) int {
 	maxR, maxC := len(field)-1, len(field[0])-1
-	seen := map[cell]struct{}{}
-	queue := []cell{
-		{row: 0, col: 0, dir: 0, run: 0, cost: -1*field[0][0]},
-		{row: 0, col: 0, dir: 2, run: 0, cost: -1*field[0][0]},
+	seen := map[cell]int{}
+	queue := map[cell]int {
+		{row: 0, col: 0, dir: 0, run: 0}: -1*field[0][0],
+		{row: 0, col: 0, dir: 2, run: 0}: -1*field[0][0],
 	}
-	res := 0
+	res := 1_000_000
 	for len(queue) > 0 {
-		newq := []cell{}
-		for _,c := range(queue) {
+		newq := map[cell]int{}
+		for c,cost := range(queue) {
 			if c.row < 0 || c.row > maxR || c.col < 0 || c.col > maxC {
 				continue
 			}
-			c.cost += field[c.row][c.col]
-			if _, ok := seen[c]; ok {
-				continue
+			cost += field[c.row][c.col]
+			if prevcost, ok := seen[c]; ok {
+				if prevcost < cost {
+					continue
+				}
 			}
-			seen[c] = VOID
+			seen[c] = cost
 			if c.row == maxR && c.col == maxR {
-				res = max(res, c.cost)
+				fmt.Println("reached, cost", cost)
+				res = min(res, cost)
 			}
 			if c.run <= MAXRUN {
-				newq = append(newq, cell{
+				newq[cell{
 					row: c.row + RDLU[c.dir][0],
 					col: c.col + RDLU[c.dir][1],
-					cost: c.cost,
 					dir: c.dir,
 					run: c.run + 1,
-				})
+				}] = cost
 			}
 			for _, turn := range([]byte{(c.dir + 1) % 4, (c.dir + 3) % 4}) {
-				newq = append(newq, cell{
+				newq[cell{
 						row: c.row + RDLU[turn][0],
 						col: c.col + RDLU[turn][1],
-						cost: c.cost,
 						dir: turn,
 						run: 0,
-				})
+				}] = cost
 			}
 		}
 		queue = newq
