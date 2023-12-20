@@ -54,8 +54,8 @@ func solve1(field [][]int) int {
 	maxR, maxC := len(field)-1, len(field[0])-1
 	seen := map[cell]int{}
 	queue := map[cell]int {
-		{row: 0, col: 0, dir: 0, run: 0}: -1*field[0][0],
-		{row: 0, col: 0, dir: 2, run: 0}: -1*field[0][0],
+		{row: 0, col: 1, dir: 0, run: 1}: 0,
+		{row: 1, col: 0, dir: 1, run: 1}: 0,
 	}
 	res := 1_000_000
 	for len(queue) > 0 {
@@ -74,22 +74,32 @@ func solve1(field [][]int) int {
 			if c.row == maxR && c.col == maxR {
 				fmt.Println("reached, cost", cost)
 				res = min(res, cost)
+				continue
 			}
-			if c.run <= MAXRUN {
-				newq[cell{
+			newnei := []cell{}
+			if c.run < MAXRUN {
+				newnei = append(newnei, cell{
 					row: c.row + RDLU[c.dir][0],
 					col: c.col + RDLU[c.dir][1],
 					dir: c.dir,
 					run: c.run + 1,
-				}] = cost
+				})
 			}
 			for _, turn := range([]byte{(c.dir + 1) % 4, (c.dir + 3) % 4}) {
-				newq[cell{
+				newnei = append(newnei, cell{
 						row: c.row + RDLU[turn][0],
 						col: c.col + RDLU[turn][1],
 						dir: turn,
-						run: 0,
-				}] = cost
+						run: 1,
+				})
+			}
+			for _, nn := range(newnei) {
+				if prevcost, ok := newq[nn]; ok {
+					if prevcost < cost {
+						continue
+					}
+				}
+				newq[nn] = cost
 			}
 		}
 		queue = newq
