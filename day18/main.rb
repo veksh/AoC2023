@@ -16,12 +16,17 @@ path = steps.reduce([[0,0]]) {|sofar, step|
   sofar.push(p)
 }
 # puts "#{path}"
-puts "row: from #{path.map{|p| p[0]}.min()} to #{path.map{|p| p[0]}.max()}"
-puts "col: from #{path.map{|p| p[1]}.min()} to #{path.map{|p| p[1]}.max()}"
+min_r, max_r = path.map{|p| p[0]}.min(), path.map{|p| p[0]}.max()
+min_c, max_c = path.map{|p| p[1]}.min(), path.map{|p| p[1]}.max()
+puts "row: from #{min_r} to #{max_r}"
+puts "col: from #{min_c} to #{max_c}"
 
-max_mr, max_md = sums["R"], sums["D"]
-field = (0..max_md*2).map {["."] * max_mr*2}
-pos = [max_md-1, max_mr-1]
+depth_r, width_c = max_r - min_r, max_c - min_c
+puts "rows #{depth_r} cols #{width_c}"
+
+field = (0..depth_r).map {["."] * width_c}
+pos = [[0, -1*min_r].max(), [0, -1*min_c].max()]
+puts "start #{pos}"
 field[pos[0]][pos[1]] = "#"
 
 steps.each do |s|
