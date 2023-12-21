@@ -18,3 +18,8 @@ path = steps.reduce([[0,0]]) {|sofar, step|
 # puts "#{path}"
 puts "minr: #{path.map{|p| p[0]}.min()}, maxr: #{path.map{|p| p[0]}.max()}"
 puts "minc: #{path.map{|p| p[1]}.min()}, maxc: #{path.map{|p| p[1]}.max()}"
+
+field = (0..sums["D"]*2).map {["."] * (sums["R"]*2)}
+pos = [sums["R"], sums["D"]]
+field[pos[0]][pos[1]] = "#"
+puts "#{field.map {|r| r.join()}.join("\n") }"
