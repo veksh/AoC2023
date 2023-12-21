@@ -21,13 +21,15 @@ puts "col: from #{path.map{|p| p[1]}.min()} to #{path.map{|p| p[1]}.max()}"
 
 max_mr, max_md = sums["R"], sums["D"]
 field = (0..max_md*2).map {["."] * max_mr*2}
-pos = [max_md, max_mr]
+pos = [max_md-1, max_mr-1]
 field[pos[0]][pos[1]] = "#"
 
 steps.each do |s|
   dir, len = RLUD[s[0]], s[1]
-  (pos[0]..pos[0]+dir[0]*len).each do |c|
-    (pos[1]..pos[1]+dir[1]*len).each do |r|
+  r0, r1 = [pos[0], pos[0]+dir[0]*len].sort()
+  c0, c1 = [pos[1], pos[1]+dir[1]*len].sort()
+  (r0..r1).each do |r|
+    (c0..c1).each do |c|
       field[r][c] = "#"
     end
   end
