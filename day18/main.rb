@@ -16,10 +16,21 @@ path = steps.reduce([[0,0]]) {|sofar, step|
   sofar.push(p)
 }
 # puts "#{path}"
-puts "minr: #{path.map{|p| p[0]}.min()}, maxr: #{path.map{|p| p[0]}.max()}"
-puts "minc: #{path.map{|p| p[1]}.min()}, maxc: #{path.map{|p| p[1]}.max()}"
+puts "row: from #{path.map{|p| p[0]}.min()} to #{path.map{|p| p[0]}.max()}"
+puts "col: from #{path.map{|p| p[1]}.min()} to #{path.map{|p| p[1]}.max()}"
 
-field = (0..sums["D"]*2).map {["."] * (sums["R"]*2)}
-pos = [sums["R"], sums["D"]]
+max_mr, max_md = sums["R"], sums["D"]
+field = (0..max_md*2).map {["."] * max_mr*2}
+pos = [max_md, max_mr]
 field[pos[0]][pos[1]] = "#"
+
+steps.each do |s|
+  dir, len = RLUD[s[0]], s[1]
+  (pos[0]..pos[0]+dir[0]*len).each do |c|
+    (pos[1]..pos[1]+dir[1]*len).each do |r|
+      field[r][c] = "#"
+    end
+  end
+  pos = [pos[0]+dir[0]*len, pos[1]+dir[1]*len]
+end
 puts "#{field.map {|r| r.join()}.join("\n") }"
