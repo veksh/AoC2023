@@ -7,13 +7,10 @@ end
 
 # input into [["dir" steps "#color"]]
 steps = ARGF.readlines().map {|l| l.split(' ')}.map {|a| hex2step(a[2])}
-puts "#{steps}"
+# puts "#{steps}"
 # first check: move range; unused
 sums = steps.reduce(Hash.new(0)) {|msum, m| msum[m[0]] += m[1]; msum }
 puts "#{sums}"
-
-# pretty hopeless at this point :)
-exit(0)
 
 # directions
 RLUD = {"R" => [0, 1], "L" => [0, -1], "U" => [-1, 0], "D" => [1, 0]}
@@ -35,6 +32,10 @@ puts "col: from #{min_c} to #{max_c}"
 # construct field from range
 depth_r, width_c = max_r - min_r, max_c - min_c
 puts "rows #{depth_r} cols #{width_c}"
+
+# pretty hopeless at this point :)
+exit(0)
+
 field = (0..depth_r).map {["."] * width_c}
 
 # start pos: offset to the middle if min_x/y < 0
