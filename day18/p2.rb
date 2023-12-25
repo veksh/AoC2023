@@ -5,12 +5,12 @@ def hex2step(h)
   return ["RDLU"[h[7].to_i], h[2..6].to_i(16)]
 end
 
-# input into [["dir" steps "#color"]]
-steps = ARGF.readlines().map {|l| l.split(' ')}.map {|a| hex2step(a[2])}
-# puts "#{steps}"
-# first check: move range; unused
-sums = steps.reduce(Hash.new(0)) {|msum, m| msum[m[0]] += m[1]; msum }
-puts "#{sums}"
+#steps = ARGF.readlines().map {|l| l.split(' ')}.map {|a| hex2step(a[2])}
+steps = ARGF.readlines().map {|l| l.split(' ')}.map {|a| [a[0], a[1].to_i]}
+puts "#{steps}"
+
+pathlen = steps.map {|s| s[1]}.sum
+puts "pathlen: #{pathlen}"
 
 # directions
 RLUD = {"R" => [0, 1], "L" => [0, -1], "U" => [-1, 0], "D" => [1, 0]}
@@ -22,59 +22,32 @@ path = steps.reduce([[0,0]]) {|sofar, step|
   p[1] += step[1]*RLUD[step[0]][1]
   sofar.push(p)
 }
+puts "#{path}"
 
-# range of rows and cols (actually y and x, will offset later)
-min_r, max_r = path.map{|p| p[0]}.min(), path.map{|p| p[0]}.max()
-min_c, max_c = path.map{|p| p[1]}.min(), path.map{|p| p[1]}.max()
-puts "row: from #{min_r} to #{max_r}"
-puts "col: from #{min_c} to #{max_c}"
+# path = [[0,3], [0,6], [2,6], [2,3], [0, 3]] # 4 * 3 = 12 or 2 x 1 = 2 w/o borders
+# puts "test path: #{path}"
 
-# construct field from range
-depth_r, width_c = max_r - min_r, max_c - min_c
-puts "rows #{depth_r} cols #{width_c}"
+# 14 points: len 38, area 24, total 62
 
-# pretty hopeless at this point :)
-exit(0)
-
-field = (0..depth_r).map {["."] * width_c}
-
-# start pos: offset to the middle if min_x/y < 0
-start_pos = [[0, -1*min_r].max(), [0, -1*min_c].max()]
-puts "start #{start_pos}"
-field[start_pos[0]][start_pos[1]] = "#"
-
-# paint path over the field
-num_border = 0
-pos = start_pos.clone()
-steps.each do |s|
-  dir, len = RLUD[s[0]], s[1]
-  r0, r1 = [pos[0], pos[0]+dir[0]*len].sort()
-  c0, c1 = [pos[1], pos[1]+dir[1]*len].sort()
-  (r0..r1).each do |r|
-    (c0..c1).each do |c|
-      field[r][c] = "#"
-      num_border += 1
-    end
+# stupid: https://www.mathopenref.com/coordpolygonarea.html
+# area = abs(sum(x_{n}*y_{n+1} - y_{n}*x_{n+1})/2) (last is x_n*y_1 - y_n*x_1, so init = n)
+# area = (path.reduce([0, path[-1]]) {|mem, p| [mem[0] + (p[1]*mem[-1][0] - p[0]*mem[-1][1]), p]}[0]/2).abs
+area = 0
+pp = path[0]
+path.each {|p|
+  if p[0] != pp[0]
+    w = p[1]         + 1*(p[0] > pp[0] ? 1 : 0)
+    h = p[0] - pp[0] + 1*(p[0] > pp[0] ? 1 : -1)
+    addArea = w * h
+    puts "#{pp} -> #{p}: +area w #{w} h #{h} = #{addArea}"
+    area += addArea
+  else
+    # addx = p[1] <=> pp[1]
+    # puts "p #{p}, prev #{pp}: addx #{addx}"
+    # area += addx
+    puts "#{pp} -> #{p}: skip"
   end
-  num_border -= 1
-  pos = [pos[0]+dir[0]*len, pos[1]+dir[1]*len]
-end
-puts "borders: #{num_border}"
-# field[start_pos[0]][start_pos[1]] = "X"
-# puts "#{field.map {|r| r.join()}.join("\n") }"
-
-# now flood fill
-# choice of start point is a bit hard: lets cheat, it is +1 for both of cases
-fill_start = [start_pos[0]+1, start_pos[1]+1]
-num_intl = 0
-queue = [fill_start]
-while queue.length() > 0 do
-  p = queue.pop()
-  next if field[p[0]][p[1]] == "#" || field[p[0]][p[1]] == "@"
-  field[p[0]][p[1]] = "@"
-  num_intl += 1
-  RLUD.values().each {|dr, dc| queue.unshift([p[0]+dr, p[1]+dc])}
-end
-puts "inside: #{num_intl}"
-# puts "#{field.map {|r| r.join()}.join("\n") }"
-puts "ans 1: #{num_border + num_intl}"
+  pp = p
+}
+puts "area: #{area}"
+#puts "ans 2: #{area + pathlen}"
