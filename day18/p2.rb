@@ -24,8 +24,9 @@ path = steps.reduce([[0,0]]) {|sofar, step|
 }
 puts "#{path}"
 
-# path = [[0,3], [0,6], [2,6], [2,3], [0, 3]] # 4 * 3 = 12 or 2 x 1 = 2 w/o borders
-# puts "test path: #{path}"
+path  = [[0,3], [0,6], [2,6], [2,3], [0, 3]] # 4 * 3 = 12 or 2 x 1 = 2 w/o borders
+steps = [["R", 3], ["D", 2], ["L", 3], ["U", 2]]
+puts "test steps #{steps}, path #{path}"
 
 # 14 points: len 38, area 24, total 62
 
@@ -33,21 +34,21 @@ puts "#{path}"
 # area = abs(sum(x_{n}*y_{n+1} - y_{n}*x_{n+1})/2) (last is x_n*y_1 - y_n*x_1, so init = n)
 # area = (path.reduce([0, path[-1]]) {|mem, p| [mem[0] + (p[1]*mem[-1][0] - p[0]*mem[-1][1]), p]}[0]/2).abs
 area = 0
-pp = path[0]
-path.each {|p|
-  if p[0] != pp[0]
-    w = p[1]         + 1*(p[0] > pp[0] ? 1 : 0)
-    h = p[0] - pp[0] + 1*(p[0] > pp[0] ? 1 : -1)
-    addArea = w * h
-    puts "#{pp} -> #{p}: +area w #{w} h #{h} = #{addArea}"
-    area += addArea
-  else
-    # addx = p[1] <=> pp[1]
-    # puts "p #{p}, prev #{pp}: addx #{addx}"
-    # area += addx
-    puts "#{pp} -> #{p}: skip"
+steps.each_with_index {|step, i|
+  dir, len = step
+  p = path[i+1]
+  addl = 0
+  case dir
+  when "R"
+    addl -= len-1
+  when "L"
+    addl -= len-1
+  when "D"
+    addl += (len+1)*(p[1])
+  when "U"
+    addl -= (len+1)*(p[1]+1)
   end
-  pp = p
+  area += addl
+  puts "#{i}: #{steps[i]} to #{p}, area + #{addl} = #{area}"
 }
-puts "area: #{area}"
-#puts "ans 2: #{area + pathlen}"
+puts "area: #{area}, len #{pathlen}, ans2 #{area + pathlen}"
