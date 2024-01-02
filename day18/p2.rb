@@ -5,8 +5,8 @@ def hex2step(h)
   return ["RDLU"[h[7].to_i], h[2..6].to_i(16)]
 end
 
-#steps = ARGF.readlines().map {|l| l.split(' ')}.map {|a| hex2step(a[2])}
-steps = ARGF.readlines().map {|l| l.split(' ')}.map {|a| [a[0], a[1].to_i]}
+steps = ARGF.readlines().map {|l| l.split(' ')}.map {|a| hex2step(a[2])}
+#steps = ARGF.readlines().map {|l| l.split(' ')}.map {|a| [a[0], a[1].to_i]}
 puts "#{steps}"
 
 pathlen = steps.map {|s| s[1]}.sum
@@ -24,31 +24,34 @@ path = steps.reduce([[0,0]]) {|sofar, step|
 }
 puts "#{path}"
 
-path  = [[0,3], [0,6], [2,6], [2,3], [0, 3]] # 4 * 3 = 12 or 2 x 1 = 2 w/o borders
-steps = [["R", 3], ["D", 2], ["L", 3], ["U", 2]]
-puts "test steps #{steps}, path #{path}"
+# path  = [[0,3], [0,6], [2,6], [2,3], [0, 3]] # 4 * 3 = 12 or 2 x 1 = 2 w/o borders
+# steps = [["R", 3], ["D", 2], ["L", 3], ["U", 2]]
+# puts "test steps #{steps}, path #{path}" # 14 points: len 38, area 24, total 62
 
-# 14 points: len 38, area 24, total 62
-
-# stupid: https://www.mathopenref.com/coordpolygonarea.html
-# area = abs(sum(x_{n}*y_{n+1} - y_{n}*x_{n+1})/2) (last is x_n*y_1 - y_n*x_1, so init = n)
-# area = (path.reduce([0, path[-1]]) {|mem, p| [mem[0] + (p[1]*mem[-1][0] - p[0]*mem[-1][1]), p]}[0]/2).abs
-area = 0
+# idea: like https://www.mathopenref.com/coordpolygonarea.html
+# - lets add area to the left when moving down, and subtract it when moving up
+#   - for down movement, lets count a border too (+1 to width)
+#   - for up movement, border is already counted, lets only subtract width (== X position)
+# - top borders:
+#   - when moving right, lets count them (next down move will not count the top border)
+#   - when moving left, nothing neet to be done (they are already included in the area)
+# - doing this accurately was pretty hard
+area = 1
 steps.each_with_index {|step, i|
   dir, len = step
   p = path[i+1]
   addl = 0
   case dir
   when "R"
-    addl -= len-1
-  when "L"
-    addl -= len-1
+    addl = len
+  #when "L"
+  #  addl = len
   when "D"
-    addl += (len+1)*(p[1])
+    addl =    len*(p[1]+1)
   when "U"
-    addl -= (len+1)*(p[1]+1)
+    addl = -1*len*(p[1])
   end
   area += addl
   puts "#{i}: #{steps[i]} to #{p}, area + #{addl} = #{area}"
 }
-puts "area: #{area}, len #{pathlen}, ans2 #{area + pathlen}"
+puts "area: #{area}"
