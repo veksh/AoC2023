@@ -39,11 +39,20 @@ m2s = {
   (0,-1): '←'
 }
 ud2s = {
-  1:  '⇣',
-  -1: '⇡'
+  1:  '⍒',
+  -1: '⍋'
 }
-prev_updown = 0
 
+# for each line, lets count a number of intersections with the contour
+# - going up the "|" counts as +1, going down as -1
+# - everything not participating in the contour and having this number != 0 is inside
+# - main problem is bends: their parity is 0.5
+#   - the final outcome is depending on previous direction
+#     - if we were going down, then level, then bend down again, then this bend is 1
+#     - same way with up: (turn) up + level + (turn) up is -1
+#     - if directions were different, this does not count
+#   - "effectively down" bends are marked with ⍒, "effectively up" are ⍋, neutral are "@"
+prev_updown = 0
 while not (pos[0] == spos[0] and pos[1] == spos[1] and cnt > 0):
   pos = (pos[0] + move[0], pos[1] + move[1])
   sym = field[pos[0]][pos[1]]
@@ -58,7 +67,7 @@ while not (pos[0] == spos[0] and pos[1] == spos[1] and cnt > 0):
   field[pos[0]][pos[1]] = m2s[tuple(move)]
   if sym in "L7JF" and move[0] != 0 and prev_updown != 0:
     if move[0] == prev_updown:
-      field[pos[0]][pos[1]] = ud2s[move[0]] # m2s[tuple([move[0], 0])]
+      field[pos[0]][pos[1]] = ud2s[move[0]]
     else:
       field[pos[0]][pos[1]] = "*"
 
@@ -69,11 +78,11 @@ res = 0
 for i,r in enumerate(field):
   odd = 0
   for j,c in enumerate(r):
-    if c in "↑⇡":
+    if c in "↑⍋":
       odd += 1
-    elif c in "↓⇣":
+    elif c in "↓⍒":
       odd -= 1
-    elif not c in "←→*" and odd == 1:
+    elif not c in "←→*" and odd != 0:
       res += 1
       field[i][j]="@"
 for r in range(0, len(field)):
