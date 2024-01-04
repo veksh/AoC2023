@@ -80,47 +80,45 @@ func mapIntervals2(intervals [][]int, ranges[][]int) [][]int {
 	fmt.Println("mapping src", intervals, "via", ranges)
 	queue := intervals
 	for len(queue) > 0 {
-		newQ := [][]int{}
-		for _, se := range(queue) {
-			iStart, iLength := se[0], se[1]
-			hit := false
-			for _, rng := range(ranges) {
-				rDest, rStart, rLength := rng[0], rng[1], rng[2]
-				if iStart <= rStart + rLength - 1 && iStart + iLength - 1 >= rStart {
-					oStart := max(iStart, rStart)
-					oLength := min(iStart + iLength, rStart + rLength) - oStart
-					mStart := oStart - rStart + rDest
-					fmt.Printf(" hit for (%d + %d) map (%d + %d): overlap (%d + %d) -> (%d + %d)\n",
-						iStart, iLength, rStart, rLength, oStart, oLength, mStart, oLength)
-					res = append(res, []int{mStart, oLength})
-					if oLength < iLength {
-						fmt.Printf("  partial match: %d of %d\n", oLength, iLength)
-						addl := 0
-						if ll := oStart - iStart; ll > 0 {
-							newQ = append(newQ, []int{iStart, ll})
-							fmt.Printf("  appending l (%d + %d)\n", iStart, ll)
-							addl += ll
-						}
-						if rl := iStart + iLength - (oStart + oLength); rl > 0 {
-							newQ = append(newQ, []int{oStart + oLength, rl})
-							fmt.Printf("  appending r (%d + %d)\n", oStart + oLength, rl)
-							addl += rl
-						}
-						if oLength + addl != iLength {
-							fmt.Printf("  oLength mismatch: still %d vs %d\n", oLength + addl, iLength)
-							os.Exit(1)
-						}
+		se := queue[0]
+		queue = queue[1:]
+		iStart, iLength := se[0], se[1]
+		hit := false
+		for _, rng := range(ranges) {
+			rDest, rStart, rLength := rng[0], rng[1], rng[2]
+			if iStart <= rStart + rLength - 1 && iStart + iLength - 1 >= rStart {
+				oStart := max(iStart, rStart)
+				oLength := min(iStart + iLength, rStart + rLength) - oStart
+				mStart := oStart - rStart + rDest
+				fmt.Printf(" hit for (%d + %d) map (%d + %d): overlap (%d + %d) -> (%d + %d)\n",
+					iStart, iLength, rStart, rLength, oStart, oLength, mStart, oLength)
+				res = append(res, []int{mStart, oLength})
+				if oLength < iLength {
+					fmt.Printf("  partial match: %d of %d\n", oLength, iLength)
+					addl := 0
+					if ll := oStart - iStart; ll > 0 {
+						queue = append(queue, []int{iStart, ll})
+						fmt.Printf("  appending l (%d + %d)\n", iStart, ll)
+						addl += ll
 					}
-					hit = true
-					break
+					if rl := iStart + iLength - (oStart + oLength); rl > 0 {
+						queue = append(queue, []int{oStart + oLength, rl})
+						fmt.Printf("  appending r (%d + %d)\n", oStart + oLength, rl)
+						addl += rl
+					}
+					if oLength + addl != iLength {
+						fmt.Printf("  oLength mismatch: still %d vs %d\n", oLength + addl, iLength)
+						os.Exit(1)
+					}
 				}
-			}
-			if !hit {
-				fmt.Printf(" unmatched (%d + %d)\n", iStart, iLength)
-				res = append(res, []int{iStart, iLength})
+				hit = true
+				break
 			}
 		}
-		queue = newQ
+		if !hit {
+			fmt.Printf(" unmatched (%d + %d)\n", iStart, iLength)
+			res = append(res, []int{iStart, iLength})
+		}
 	}
 	return res
 }
