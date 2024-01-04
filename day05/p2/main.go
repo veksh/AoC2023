@@ -32,7 +32,7 @@ func readData(fname string) (seedIntervals [][]int, maps [][][]int) {
 	scanner.Scan()
 	seeds := strs2ints(strings.Fields(scanner.Text())[1:])
 	seedIntervals = [][]int{}
-	for i := 0; i <= len(seeds)/2; i += 2 {
+	for i := 0; i <= len(seeds)-1; i += 2 {
 		seedIntervals = append(seedIntervals, []int{seeds[i], seeds[i+1]})
 	}
 	sort.Slice(seedIntervals, func(i, j int) bool {return seedIntervals[i][0] < seedIntervals[j][0]})
@@ -79,11 +79,12 @@ func mapIntervals2(intervals [][]int, ranges[][]int) [][]int {
 	res := [][]int{}
 	fmt.Println("mapping src", intervals, "via", ranges)
 	queue := intervals
+	var hit bool
 	for len(queue) > 0 {
 		se := queue[0]
 		queue = queue[1:]
 		iStart, iLength := se[0], se[1]
-		hit := false
+		hit = false
 		for _, rng := range(ranges) {
 			rDest, rStart, rLength := rng[0], rng[1], rng[2]
 			if iStart <= rStart + rLength - 1 && iStart + iLength - 1 >= rStart {
