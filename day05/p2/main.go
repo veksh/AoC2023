@@ -75,59 +75,6 @@ func mapOne(n int, ranges [][]int) int {
 	return n
 }
 
-func mapIntervals(intervals [][]int, ranges[][]int) [][]int {
-	res := [][]int{}
-	fmt.Println("mapping src", intervals, "via", ranges)
-	for _, se := range(intervals) {
-		iStart, iLength := se[0], se[1]
-		mappedParts := [][]int{}
-		for _, rng := range(ranges) {
-			rDest, rStart, rLength := rng[0], rng[1], rng[2]
-			if iStart <= rStart + rLength && iStart + iLength >= rStart {
-				oStart := max(iStart, rStart)
-				oLength := min(iStart + iLength, rStart + rLength) - oStart
-				mStart := oStart - rStart + rDest
-				fmt.Printf(" hit for (%d + %d) map (%d + %d): overlap (%d + %d) -> (%d + %d)\n",
-					iStart, iLength, rStart, rLength, oStart, oLength, mStart, oLength)
-				if oStart < 0 || oLength <= 0 {
-					fmt.Printf(" *** warn: pathological split")
-				}
-				res = append(res, []int{mStart, oLength})
-				mappedParts = append(mappedParts, []int{oStart, oLength})
-			}
-		}
-		if len(mappedParts) > 0 {
-			if mappedParts[0][1] == iLength {
-				fmt.Printf("  fully mapped: (%d + %d)\n", mappedParts[0][0], mappedParts[0][1])
-				continue
-			}
-			sort.Slice(mappedParts, func(i, j int) bool {return mappedParts[i][0] < mappedParts[j][0]})
-			prevEnd := iStart
-			mappedParts = append(mappedParts, []int{iStart + iLength, 0})
-			sumLen := 0
-			for _, mp := range(mappedParts) {
-				sumLen += mp[1]
-				if uLen := mp[0] - prevEnd; uLen > 0 {
-					fmt.Printf("  unmapped: (%d + %d)\n", prevEnd, uLen)
-				  if prevEnd < 0 || uLen <= 0 {
-					  fmt.Printf(" *** warn: pathological unmapped")
-				  }
-					res = append(res, []int{prevEnd, uLen})
-					sumLen += uLen
-				}
-				prevEnd = mp[0] + mp[1]
-			}
-			if sumLen != iLength {
-				fmt.Printf(" *** warn: %d unaccounted\n", sumLen - iLength)
-			}
-		} else {
-			fmt.Printf(" interval (%d + %d) is fully unmapped\n", iStart, iLength)
-			res = append(res, []int{iStart, iLength})
-		}
-	}
-	return res
-}
-
 func mapIntervals2(intervals [][]int, ranges[][]int) [][]int {
 	res := [][]int{}
 	fmt.Println("mapping src", intervals, "via", ranges)
@@ -139,7 +86,7 @@ func mapIntervals2(intervals [][]int, ranges[][]int) [][]int {
 			hit := false
 			for _, rng := range(ranges) {
 				rDest, rStart, rLength := rng[0], rng[1], rng[2]
-				if iStart < rStart + rLength && iStart + iLength > rStart {
+				if iStart <= rStart + rLength - 1 && iStart + iLength - 1 >= rStart {
 					oStart := max(iStart, rStart)
 					oLength := min(iStart + iLength, rStart + rLength) - oStart
 					mStart := oStart - rStart + rDest
@@ -187,9 +134,9 @@ func intervalSum(intervals [][]int) (res int) {
 
 func main() {
 	fileName := "stdin"
-  if len(os.Args) > 1 {
-     fileName = os.Args[1]
-  }
+	if len(os.Args) > 1 {
+		fileName = os.Args[1]
+	}
 	intervals, maps := readData(fileName)
 	fmt.Println("range maps:", maps)
 	fmt.Println("seed intervals:", intervals)
