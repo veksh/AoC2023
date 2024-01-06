@@ -19,8 +19,6 @@ slines, plines = open(sys.argv[1] if len(sys.argv) > 1 else 0).read().rstrip("\n
 parts = [{k: int(v) for k,v in re.findall(r'([xmas])=(\d+)[,}]', l)} for l in plines.split("\n")]
 pprint.pprint(parts)
 
-
-stage0 = re.search(r'^\w+', slines[0])[0]
 stages = {}
 for l in slines.split("\n"):
   name, sink = re.findall(r'^(\w+)\{.*,(\w+)\}$', l)[0]
@@ -30,3 +28,13 @@ for l in slines.split("\n"):
     stages[name]["ops"].append((m[0], m[1], int(m[2]), m[3]))
 for n,s in stages.items():
   print("stage %s: %s" % (n, s))
+
+def process(part, ops, sink):
+  for op in ops:
+    cat, sign, cval, res = op
+    pval = part[cat]
+    if (sign == "<" and pval < cval) or (sign == ">" and pval > cval):
+      return res
+  return sink
+
+print(process(parts[0], stages["qqz"]["ops"], "R"))
