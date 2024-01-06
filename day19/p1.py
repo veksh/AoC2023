@@ -29,12 +29,20 @@ for l in slines.split("\n"):
 for n,s in stages.items():
   print("stage %s: %s" % (n, s))
 
-def process(part, ops, sink):
-  for op in ops:
+def process(part, stage):
+  for op in stage["ops"]:
     cat, sign, cval, res = op
     pval = part[cat]
     if (sign == "<" and pval < cval) or (sign == ">" and pval > cval):
       return res
-  return sink
+  return stage["sink"]
 
-print(process(parts[0], stages["qqz"]["ops"], "R"))
+res = 0
+for p in parts:
+  stage = "in"
+  while stage != "A" and stage != "R":
+    stage = process(p, stages[stage])
+  if stage == "A":
+    res += sum(p.values())
+print("ans1:", res)
+
