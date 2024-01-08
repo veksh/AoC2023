@@ -3,6 +3,7 @@
 import sys
 import re
 import pprint
+import copy
 from functools import reduce
 
 # class Stage:
@@ -51,27 +52,28 @@ class Bounds:
   def __init__(self, bmap):
     self.bmap = bmap
 
-  # def __repr__(self):
-  #   return "%s" % self.bmap
+  def __str__(self):
+    return "%s" % self.bmap
 
   def withCond(self, cat, sign, val):
-    newb = self.bmap.copy()
+    # newb = self.bmap.copy()
+    newb = copy.deepcopy(self.bmap)
     if (sign == "<"):
-      newb[cat][1] = min(newb[cat][1], val)
+      newb[cat][1] = min(newb[cat][1], val - 1)
     else:
-      newb[cat][0] = max(newb[cat][0], val)
+      newb[cat][0] = max(newb[cat][0], val + 1)
     return Bounds(newb)
 
   def withNegCond(self, cat, sign, val):
-    newb = self.bmap.copy()
+    newb = copy.deepcopy(self.bmap)
     if (sign == "<"):
-      newb[cat][0] = max(newb[cat][0], val - 1)
+      newb[cat][0] = max(newb[cat][0], val)
     else:
-      newb[cat][1] = min(newb[cat][1], val + 1)
+      newb[cat][1] = min(newb[cat][1], val)
     return Bounds(newb)
 
   def area(self):
-    rs = [p[1]-p[0]-1 for p in self.bmap.values()]
+    rs = [p[1]-p[0]+1 for p in self.bmap.values()]
     return reduce(lambda s, x: s*x, rs)
 
 # step.res == "A":   rec(bounds + !new cond, step+1) + rsum(bounds + new cond)
@@ -101,7 +103,5 @@ def vars(stageName, step, bounds):
     return rest + vars(res, 0, bounds.withCond(cat, sign, cval))
 
 b = Bounds({m: [1, 4000] for m in "xmas"})
-# rs = [p[1]-p[0]-1 for p in b.values()]
-# res = reduce(lambda s, x: s*x, rs)
 res2 = vars("in", 0, b)
 print("ans2:", res2)
