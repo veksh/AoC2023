@@ -3,6 +3,7 @@
 import sys
 import re
 import pprint
+from functools import reduce
 
 # class Stage:
 #   def __init__(self, line):
@@ -46,3 +47,61 @@ for p in parts:
     res += sum(p.values())
 print("ans1:", res)
 
+class Bounds:
+  def __init__(self, bmap):
+    self.bmap = bmap
+
+  # def __repr__(self):
+  #   return "%s" % self.bmap
+
+  def withCond(self, cat, sign, val):
+    newb = self.bmap.copy()
+    if (sign == "<"):
+      newb[cat][1] = min(newb[cat][1], val)
+    else:
+      newb[cat][0] = max(newb[cat][0], val)
+    return Bounds(newb)
+
+  def withNegCond(self, cat, sign, val):
+    newb = self.bmap.copy()
+    if (sign == "<"):
+      newb[cat][0] = max(newb[cat][0], val - 1)
+    else:
+      newb[cat][1] = min(newb[cat][1], val + 1)
+    return Bounds(newb)
+
+  def area(self):
+    rs = [p[1]-p[0]-1 for p in self.bmap.values()]
+    return reduce(lambda s, x: s*x, rs)
+
+# step.res == "A":   rec(bounds + !new cond, step+1) + rsum(bounds + new cond)
+# step.res == "R":   rec(bounds + !new cond, step+1)
+# step.res == stage: rec(bounds + !new cond, step+1) + rec(bounds + new cond, stage)
+# step == sink:
+# - sink == "A": rsum(bounds)
+# - sink == "R": 0
+# - sink == stage: rec(bounds, stage)
+def vars(stageName, step, bounds):
+  print("checking", stageName, "step", step, "bounds", bounds)
+  stage = stages[stageName]
+  if step == len(stage["ops"]):
+    if sink == "A":
+      return bounds.area()
+    elif sink == "R":
+      return 0
+    else:
+      return vars(sink, 0, bounds)
+  cat, sign, cval, res = stage["ops"][step]
+  rest = vars(stageName, step + 1, bounds.withNegCond(cat, sign, cval))
+  if res == "R":
+    return rest
+  elif res == "A":
+    return rest + bounds.withCond(cat, sign, cval).area()
+  else:
+    return rest + vars(res, 0, bounds.withCond(cat, sign, cval))
+
+b = Bounds({m: [1, 4000] for m in "xmas"})
+# rs = [p[1]-p[0]-1 for p in b.values()]
+# res = reduce(lambda s, x: s*x, rs)
+res2 = vars("in", 0, b)
+print("ans2:", res2)
