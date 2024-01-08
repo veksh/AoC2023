@@ -19,7 +19,7 @@ from functools import reduce
 slines, plines = open(sys.argv[1] if len(sys.argv) > 1 else 0).read().rstrip("\n").split("\n\n")
 
 parts = [{k: int(v) for k,v in re.findall(r'([xmas])=(\d+)[,}]', l)} for l in plines.split("\n")]
-pprint.pprint(parts)
+# pprint.pprint(parts)
 
 stages = {}
 for l in slines.split("\n"):
@@ -28,8 +28,8 @@ for l in slines.split("\n"):
   stages[name]["ops"] = []
   for m in re.findall(r'([xmas])([<>])(\d+):(\w+)', l):
     stages[name]["ops"].append((m[0], m[1], int(m[2]), m[3]))
-for n,s in stages.items():
-  print("stage %s: %s" % (n, s))
+#for n,s in stages.items():
+#  print("stage %s: %s" % (n, s))
 
 def process(part, stage):
   for op in stage["ops"]:
@@ -48,6 +48,7 @@ for p in parts:
     res += sum(p.values())
 print("ans1:", res)
 
+# ranges of possible values for coords + produce new by applying codition
 class Bounds:
   def __init__(self, bmap):
     self.bmap = bmap
@@ -84,9 +85,9 @@ class Bounds:
 # - sink == "R": 0
 # - sink == stage: rec(bounds, stage)
 def vars(stageName, step, bounds):
-  print("checking", stageName, "step", step, "bounds", bounds)
   stage = stages[stageName]
   if step == len(stage["ops"]):
+    sink = stage["sink"]
     if sink == "A":
       return bounds.area()
     elif sink == "R":
