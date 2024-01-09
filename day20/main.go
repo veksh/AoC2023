@@ -26,6 +26,8 @@ func main() {
 		if err != nil {
 			break
 		}
-		fmt.Println("got", strings.Trim(str, "\n"))
+		parts := strings.Split(strings.Trim(strings.Replace(str, ",", "", -1), "\n"), " ")
+		kind, name, outs := string(parts[0][0]), parts[0][1:], parts[2:]
+		fmt.Printf("%s: %s, outs %v\n", name, kind, outs)
 	}
 }
