@@ -111,6 +111,31 @@ func main() {
 	}
 	fmt.Printf("highs %d, lows %d, ans1 %d\n", cnt[1], cnt[-1], cnt[1]*cnt[-1])
 
+	void := struct{}{}
+	type vmap map[string]struct{}
+
+	gset := vmap{"rx": void}
+	q := vmap{"rx": void}
+	for len(q) > 0 {
+		qnew := vmap{}
+		for gname, gate := range(gates) {
+			if _, ok := gset[gname]; ok {
+				continue
+			}
+			for _, oname := range(gate.outputs) {
+				if _, ok := q[oname]; ok {
+					qnew[gname] = void
+					gset[gname] = void
+					break
+				}
+			}
+		}
+		fmt.Println(qnew)
+		q = qnew
+	}
+	fmt.Println("len of gset:", len(gset))
+	os.Exit(0)
+
 	res2 := 0
 	for gname, gate := range(gates) {
 		for _, oname := range(gate.outputs) {
