@@ -37,8 +37,10 @@ func (g Gate)Signal(in string, val int) int {
 			if s == -1 {
 				return 1
 			}
-			return 0
+			return -1
 		}
+	case "b":
+		return val
 	default:
 		return 0
 	}
@@ -65,7 +67,7 @@ func main() {
 	for gname, gate := range(gates) {
 		for _, oname := range(gate.outputs) {
 			if outg, ok := gates[oname]; ok {
-				if outg.kind == "%" {
+				if outg.kind == "&" {
 					outg.state[gname] = -1
 				} else {
 					outg.state["all"] = -1
