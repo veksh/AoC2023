@@ -7,6 +7,7 @@ import (
 	"os"
 	"strings"
 	// "github.com/samber/lo"
+	"github.com/davecgh/go-spew/spew"
 )
 
 type Gate struct {
@@ -19,6 +20,29 @@ type Gate struct {
 func (g Gate)String() string {
 	return fmt.Sprintf("%s: %s, outs %v, states %v",
 		g.name, g.kind, g.outputs, g.state)
+}
+
+// 0 none, 1 high, -1 low
+func (g Gate)Signal(in string, val int) int {
+	switch g.kind {
+	case "%":
+		if val == 1 {
+			return 0
+		}
+		g.state["all"] *= -1
+		return g.state["all"]
+	case "&":
+		g.state[in] = val
+		for _, s := range(g.state) {
+			if s == -1 {
+				return 1
+			}
+			return 0
+		}
+	default:
+		return 0
+	}
+	return 0
 }
 
 func main() {
@@ -41,11 +65,15 @@ func main() {
 	for gname, gate := range(gates) {
 		for _, oname := range(gate.outputs) {
 			if outg, ok := gates[oname]; ok {
-				outg.state[gname] = -1
+				if outg.kind == "%" {
+					outg.state[gname] = -1
+				} else {
+					outg.state["all"] = -1
+				}
 			} else {
-				gates[oname] = Gate{name: oname, kind: "s", state: map[string]int{}}
+				gates[oname] = Gate{name: oname, kind: "s", state: map[string]int{"dummy": 0}}
 			}
 		}
 	}
-	fmt.Println(gates)
+	spew.Dump(gates)
 }
