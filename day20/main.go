@@ -110,4 +110,48 @@ func main() {
 		}
 	}
 	fmt.Printf("highs %d, lows %d, ans1 %d\n", cnt[1], cnt[-1], cnt[1]*cnt[-1])
+
+	res2 := 0
+	for gname, gate := range(gates) {
+		for _, oname := range(gate.outputs) {
+			if outg, ok := gates[oname]; ok {
+				if outg.kind == "&" {
+					outg.state[gname] = -1
+				} else {
+					outg.state["all"] = -1
+				}
+			} else {
+				gates[oname] = Gate{name: oname, kind: "s", state: map[string]int{"dummy": 0}}
+			}
+		}
+	}
+	for i := 0; i < 1_000_000_000; i++ {
+		if i % 1_000_000 == 0 {
+			fmt.Printf("*** run %d\n", i)
+		}
+		queue := []Signal{{"roadcaster", -1}}
+		cnt[-1] += 1
+		for len(queue) > 0 {
+			newq := []Signal{}
+		 	for _, signal := range(queue) {
+		 		gate := gates[signal.gateName]
+		 		for _, oname := range(gate.outputs) {
+		 			if signal.value == -1 && oname == "rx" {
+		 				fmt.Printf("*** found answer at step %d\n", i)
+		 				res2 = i + 1
+		 			}
+		 			cnt[signal.value] += 1
+		 			res := gates[oname].Process(signal.gateName, signal.value)
+					if res != 0 {
+						newq = append(newq, Signal{oname, res})
+					}
+				}
+			}
+			queue = newq
+			if res2 != 0 {
+				queue = []Signal{}
+			}
+		}
+	}
+	fmt.Printf("res2: %d\n", res2)
 }
