@@ -8,6 +8,7 @@ import (
 	"strings"
 
 	"github.com/davecgh/go-spew/spew"
+	"github.com/samber/lo"
 	// "github.com/samber/lo"
 )
 
@@ -21,6 +22,21 @@ type Gate struct {
 type Signal struct {
 	gateName string
 	value    int
+}
+
+func GCD(a, b int) int {
+  for b != 0 {
+    a, b = b, a % b
+  }
+  return a
+}
+
+func LCM(a, b int) int {
+  return a * b / GCD(a, b)
+}
+
+func LCMa(nums []int) int {
+	return lo.Reduce(nums, func(agg int, item int, _ int) int {return LCM(agg, item)}, 1)
 }
 
 const NUM_PRESSES = 1000
@@ -111,31 +127,6 @@ func main() {
 	}
 	fmt.Printf("highs %d, lows %d, ans1 %d\n", cnt[1], cnt[-1], cnt[1]*cnt[-1])
 
-	void := struct{}{}
-	type vmap map[string]struct{}
-
-	gset := vmap{"rx": void}
-	q := vmap{"rx": void}
-	for len(q) > 0 {
-		qnew := vmap{}
-		for gname, gate := range(gates) {
-			if _, ok := gset[gname]; ok {
-				continue
-			}
-			for _, oname := range(gate.outputs) {
-				if _, ok := q[oname]; ok {
-					qnew[gname] = void
-					gset[gname] = void
-					break
-				}
-			}
-		}
-		fmt.Println(qnew)
-		q = qnew
-	}
-	fmt.Println("len of gset:", len(gset))
-	os.Exit(0)
-
 	res2 := 0
 	for gname, gate := range(gates) {
 		for _, oname := range(gate.outputs) {
@@ -150,8 +141,12 @@ func main() {
 			}
 		}
 	}
-	for i := 0; i < 1_000_000_000; i++ {
-		if i % 1_000_000 == 0 {
+	spew.Dump(gates["rs"])
+	last1 := map[string]int{}
+	i := 0
+	for res2 == 0 {
+		i += 1
+		if i % 10_000 == 0 {
 			fmt.Printf("*** run %d\n", i)
 		}
 		queue := []Signal{{"roadcaster", -1}}
@@ -161,6 +156,18 @@ func main() {
 		 	for _, signal := range(queue) {
 		 		gate := gates[signal.gateName]
 		 		for _, oname := range(gate.outputs) {
+		 			if oname == "rs" && signal.value == 1 {
+		 				spew.Printf("** %d: +1 %s => rs (+ %d), state %v\n",
+		 					i, signal.gateName, i - last1[signal.gateName], gates["rs"].state)
+		 				last1[signal.gateName] = i
+		 				// cheating a bit: I know that "rx" feeds from "rs" and "rs" has 4 inputs
+		 				if len(last1) == 4 {
+		 					spew.Printf("*** found all 4: %v\n", last1)
+		 					res2 = LCMa(lo.Values(last1))
+		 					queue = []Signal{}
+		 					break
+		 				}
+		 			}
 		 			if signal.value == -1 && oname == "rx" {
 		 				fmt.Printf("*** found answer at step %d\n", i)
 		 				res2 = i + 1
