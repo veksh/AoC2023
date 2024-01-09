@@ -7,9 +7,8 @@ import (
 	"os"
 	"strings"
 
-	// "github.com/samber/lo"
 	"github.com/davecgh/go-spew/spew"
-	"github.com/samber/lo"
+	// "github.com/samber/lo"
 )
 
 type Gate struct {
@@ -23,6 +22,8 @@ type Signal struct {
 	gateName string
 	value    int
 }
+
+const NUM_PRESSES = 1000
 
 func (g Gate) String() string {
 	return fmt.Sprintf("%s: %s, outs %v, states %v",
@@ -85,26 +86,29 @@ func main() {
 		}
 	}
 	spew.Dump(gates)
-	queue := []Signal{{"roadcaster", -1}}
-	lows, highs := 0, 0
-	for len(queue) > 0 {
-		h := lo.Reduce(queue, func(agg int, item Signal, _ int) int {return agg + (item.value + 1)/2}, 0)
-		l := len(queue) - h
-		spew.Printf("q: %v, highs +%d, lows +%d\n", queue, h, l)
-		highs, lows = highs + h, lows + l
-		newq := []Signal{}
-	 	for _, signal := range(queue) {
-	 		gate := gates[signal.gateName]
-	 		fmt.Printf(" processing signal %d from %s to %v\n", signal.value, signal.gateName, gate.outputs)
-	 		for _, oname := range(gate.outputs) {
-	 			res := gates[oname].Process(signal.gateName, signal.value)
-				if res != 0 {
-					fmt.Printf("  %s outputs %d\n", oname, res)
-					newq = append(newq, Signal{oname, res})
+	cnt := map[int]int{-1: 0, 1: 0}
+	for i := 0; i < NUM_PRESSES; i++ {
+		fmt.Printf("*** run %d\n", i)
+		queue := []Signal{{"roadcaster", -1}}
+		cnt[-1] += 1
+		for len(queue) > 0 {
+			spew.Printf("q: %v\n", queue)
+			newq := []Signal{}
+		 	for _, signal := range(queue) {
+		 		gate := gates[signal.gateName]
+		 		fmt.Printf(" processing signal %d from %s to %v\n", signal.value, signal.gateName, gate.outputs)
+		 		for _, oname := range(gate.outputs) {
+		 			cnt[signal.value] += 1
+		 			res := gates[oname].Process(signal.gateName, signal.value)
+					if res != 0 {
+						fmt.Printf("  %s outputs %d\n", oname, res)
+						newq = append(newq, Signal{oname, res})
+					}
 				}
 			}
+			fmt.Printf(" end of queue: cnt %v\n", cnt)
+			queue = newq
 		}
-		queue = newq
 	}
-	fmt.Printf("higs %d, lows %d, ans1 %d\n", highs, lows, highs*lows)
+	fmt.Printf("highs %d, lows %d, ans1 %d\n", cnt[1], cnt[-1], cnt[1]*cnt[-1])
 }
