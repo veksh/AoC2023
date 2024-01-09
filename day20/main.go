@@ -45,14 +45,13 @@ func (g Gate) Process(in string, val int) int {
 			if s == -1 {
 				return 1
 			}
-			return -1
 		}
+		return -1
 	case "b":
 		return val
 	default:
 		return 0
 	}
-	return 0
 }
 
 func main() {
