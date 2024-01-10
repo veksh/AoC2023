@@ -31,4 +31,5 @@ q = [[sr, sc]]
   end
   q = qnew
 end
+# took 4GB and 2:45 to reach 5K steps on test input :)
 puts "ans2: #{seen[0].length()}"
