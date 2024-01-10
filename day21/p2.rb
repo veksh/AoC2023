@@ -11,6 +11,7 @@ puts "start: #{sr} #{sc}, moves: #{steps}"
 maze[sr][sc] = "."
 
 moves = [[1, 0], [-1, 0], [0, 1], [0, -1]]
+rows, cols = maze.length(), maze[0].length()
 
 seen = [Set.new(), Set.new()] # even and odd
 
@@ -22,7 +23,7 @@ q = [[sr, sc]]
   q.each do |p|
     moves.each do |move|
       n = [p[0] + move[0], p[1] + move[1]]
-      if !curr_seen.include?(n) && maze[n[0]][n[1]] == "."
+      if !curr_seen.include?(n) && maze[n[0] % rows][n[1] % cols] == "."
         curr_seen.add(n)
         qnew.push(n)
       end
