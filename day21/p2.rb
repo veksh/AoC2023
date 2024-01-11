@@ -15,7 +15,8 @@ rows, cols = maze.length(), maze[0].length()
 
 seen = [Set.new(), Set.new()] # even and odd
 
-cnt = (1..maze.length).map {(1..maze[0].length).map {[]}}
+## init with dummy [step, tile_r, tile_c] to see first match
+cnt = (1..maze.length).map {(1..maze[0].length).map {[0, 0, 0]}}
 
 q = [[sr, sc]]
 (1..steps).each do |i|
@@ -28,7 +29,7 @@ q = [[sr, sc]]
       if !curr_seen.include?(n) && maze[n[0] % rows][n[1] % cols] == "."
         curr_seen.add(n)
         qnew.push(n)
-        cnt[n[0] % rows][n[1] % cols].push(i)
+        cnt[n[0] % rows][n[1] % cols].push([i, n[0] / rows, n[1] / cols])
       end
     end
   end
@@ -38,6 +39,11 @@ end
 puts "ans2: #{seen[0].length()}"
 cnt.each_with_index do |r, ri|
   r.each_with_index do |c, ci|
-    puts "#{ri}:#{ci}: #{cnt[ri][ci].each_cons(2).map{|p| p[1] - p[0]}.chunk {|i| i}.map {|p| [p[0], p[1].length]}}"
+    # +1 event: step, grid r, grid c
+    plus1s = cnt[ri][ci].each_cons(2).select {|p| p[0][0] != p[1][0]}
+    printf("%2d:%2d: ", ri, ci)
+    print(plus1s.map {|p| sprintf("s %2d (+%2d) %3d:%3d",
+      p[1][0], p[1][0] - p[0][0], p[1][1], p[1][2])}.join("|"))
+    printf("\n")
   end
 end
