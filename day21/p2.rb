@@ -15,6 +15,8 @@ rows, cols = maze.length(), maze[0].length()
 
 seen = [Set.new(), Set.new()] # even and odd
 
+cnt = (1..maze.length).map {(1..maze[0].length).map {[]}}
+
 q = [[sr, sc]]
 (1..steps).each do |i|
   puts "step #{i}, sizes: #{seen.map(&:length)}" if i % 1000 == 0
@@ -26,6 +28,7 @@ q = [[sr, sc]]
       if !curr_seen.include?(n) && maze[n[0] % rows][n[1] % cols] == "."
         curr_seen.add(n)
         qnew.push(n)
+        cnt[n[0] % rows][n[1] % cols].push(i)
       end
     end
   end
@@ -33,3 +36,8 @@ q = [[sr, sc]]
 end
 # took 4GB and 2:45 to reach 5K steps on test input :)
 puts "ans2: #{seen[0].length()}"
+cnt.each_with_index do |r, ri|
+  r.each_with_index do |c, ci|
+    puts "#{ri}:#{ci}: #{cnt[ri][ci].each_cons(2).map{|p| p[1] - p[0]}.chunk {|i| i}.map {|p| [p[0], p[1].length]}}"
+  end
+end
