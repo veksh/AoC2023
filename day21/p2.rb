@@ -43,7 +43,9 @@ cnt.each_with_index do |r, ri|
     firststep = c[c.find_index {|p| p[0] == 0 && p[1] == 0}][2]
     printf("r %2d c %2d: first %d\n", ri, ci, firststep)
     c.sort {|p1, p2| (p1[0].abs + p1[1].abs) <=> (p2[0].abs + p2[1].abs)}.each do |tr, tc, step|
-      printf(" %2d %2d: %d (%d)\n", tr, tc, step, step - (tr.abs + tc.abs)*11 - firststep)
+      ctr = tr < 0? -1*tr + 1: tr
+      ctc = tc < 0? -1*tc + 1: tc
+      printf(" %2d %2d: %d (%d)\n", tr, tc, step, step - (ctr + ctc)*131)
     end
   end
 end
