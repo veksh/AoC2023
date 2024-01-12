@@ -26,10 +26,10 @@ q = [[sr, sc]]
   q.each do |p|
     moves.each do |move|
       n = [p[0] + move[0], p[1] + move[1]]
-      if !curr_seen.include?(n) && maze[n[0] % rows][n[1] % cols] == "."
+      if !seen.any? {|s| s.include?(n)} && maze[n[0] % rows][n[1] % cols] == "."
         curr_seen.add(n)
         qnew.push(n)
-        cnt[n[0] % rows][n[1] % cols].push([n[0] / rows, n[1] / cols, i])
+        # cnt[n[0] % rows][n[1] % cols].push([n[0] / rows, n[1] / cols, i])
       end
     end
   end
@@ -37,15 +37,15 @@ q = [[sr, sc]]
 end
 # took 4GB and 2:45 to reach 5K steps on test input :)
 puts "ans2: #{seen[0].length()}"
-cnt.each_with_index do |r, ri|
-  r.each_with_index do |c, ci|
-    next if c.length() == 0
-    firststep = c[c.find_index {|p| p[0] == 0 && p[1] == 0}][2]
-    printf("r %2d c %2d: first %d\n", ri, ci, firststep)
-    c.sort {|p1, p2| (p1[0].abs + p1[1].abs) <=> (p2[0].abs + p2[1].abs)}.each do |tr, tc, step|
-      ctr = tr < 0? -1*tr + 1: tr
-      ctc = tc < 0? -1*tc + 1: tc
-      printf(" %2d %2d: %d (%d)\n", tr, tc, step, step - (ctr + ctc)*131)
-    end
-  end
-end
+# cnt.each_with_index do |r, ri|
+#   r.each_with_index do |c, ci|
+#     next if c.length() == 0
+#     firststep = c[c.find_index {|p| p[0] == 0 && p[1] == 0}][2]
+#     printf("r %2d c %2d: first %d\n", ri, ci, firststep)
+#     c.sort {|p1, p2| (p1[0].abs + p1[1].abs) <=> (p2[0].abs + p2[1].abs)}.each do |tr, tc, step|
+#       ctr = tr < 0? -1*tr + 1: tr
+#       ctc = tc < 0? -1*tc + 1: tc
+#       printf(" %2d %2d: %d (%d)\n", tr, tc, step, step - (ctr + ctc)*131)
+#     end
+#   end
+# end
