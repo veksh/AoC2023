@@ -15,8 +15,8 @@ rows, cols = maze.length(), maze[0].length()
 
 seen = [Set.new(), Set.new()] # even and odd
 
-## init with dummy [step, tile_r, tile_c] to see first match
-cnt = (1..maze.length).map {(1..maze[0].length).map {[0, 0, 0]}}
+## init with dummy [tile_r, tile_c] to see first match
+cnt = (1..maze.length).map {(1..maze[0].length).map {[]}}
 
 q = [[sr, sc]]
 (1..steps).each do |i|
@@ -29,7 +29,7 @@ q = [[sr, sc]]
       if !curr_seen.include?(n) && maze[n[0] % rows][n[1] % cols] == "."
         curr_seen.add(n)
         qnew.push(n)
-        cnt[n[0] % rows][n[1] % cols].push([i, n[0] / rows, n[1] / cols])
+        cnt[n[0] % rows][n[1] % cols].push([n[0] / rows, n[1] / cols, i])
       end
     end
   end
@@ -39,11 +39,11 @@ end
 puts "ans2: #{seen[0].length()}"
 cnt.each_with_index do |r, ri|
   r.each_with_index do |c, ci|
-    # +1 event: step, grid r, grid c
-    plus1s = cnt[ri][ci].each_cons(2).select {|p| p[0][0] != p[1][0]}
-    printf("%2d:%2d: ", ri, ci)
-    print(plus1s.map {|p| sprintf("s %2d (+%2d) %3d:%3d",
-      p[1][0], p[1][0] - p[0][0], p[1][1], p[1][2])}.join("|"))
-    printf("\n")
+    next if c.length() == 0
+    firststep = c[c.find_index {|p| p[0] == 0 && p[1] == 0}][2]
+    printf("r %2d c %2d: first %d\n", ri, ci, firststep)
+    c.sort {|p1, p2| (p1[0].abs + p1[1].abs) <=> (p2[0].abs + p2[1].abs)}.each do |tr, tc, step|
+      printf(" %2d %2d: %d (%d)\n", tr, tc, step, step - (tr.abs + tc.abs)*11 - firststep)
+    end
   end
 end
