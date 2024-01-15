@@ -12,10 +12,12 @@ maze[sr][sc] = "."
 
 moves = [[1, 0], [-1, 0], [0, 1], [0, -1]]
 rows, cols = maze.length(), maze[0].length()
+puts "maze: #{rows} rows x #{cols} cols (#{rows * cols} total)"
 
 seen = [Set[[sr, sc]]] # enough to keep only last 2
 max_seen = 2
-ans2 = 1
+ans2 = [1, 0]
+# for all steps
 cnt = [0]
 (1..steps).each do |i|
   puts "step #{i}, sizes: #{seen.map(&:length)}" if i % 100 == 0
@@ -29,28 +31,34 @@ cnt = [0]
       end
     end
   end
-  if i % 2 == 0
-    ans2 += curr_seen.length()
-    cnt.push(curr_seen.length())
-  end
+  cnt.push(curr_seen.length())
+  ans2[i % 2] += curr_seen.length()
   seen.pop() if seen.length > max_seen
 end
 # took 4GB and 2:45 to reach 5K steps on test input :)
 #puts "ans2: #{seen[0].length()}"
-puts "ans2: #{ans2}"
+puts "ans2: #{ans2[steps % 2]}"
 
-# try to find a period
-(2..cnt.length()/2).each do |step|
-  diff = cnt[-1] - cnt[-1-step]
-  steps = 1
-  (2..cnt.length()/step - 1).each do |nums|
-    if cnt[-1-step*(nums-1)] - cnt[-1-step*nums] == diff
-      steps = nums
-    else
-      break
-    end
-  end
-  if steps > 1
-    puts "#{step}: #{steps} times from #{cnt.length() - steps*step}"
-  end
-end
+# # try to find a period
+# ms = {:steplen => 1}
+# (2..cnt.length()/2).each do |step|
+#   diff = cnt[-1] - cnt[-1-step]
+#   steps = 1
+#   (2..cnt.length()/step - 1).each do |nums|
+#     if cnt[-1-step*(nums-1)] - cnt[-1-step*nums] == diff
+#       puts "match: #{-1-step*(nums-1)} == #{-1-step*nums} "
+#       steps = nums
+#     else
+#       break
+#     end
+#   end
+#   if steps > 1
+#     puts "step #{step}: #{steps} times from #{cnt.length() - steps*step - 1}, diff #{diff}"
+#   end
+#   if steps > ms[:steplen]
+#     ms[:steplen], ms[:start], ms[:diff] = step, cnt.length() - steps*step - 1, diff
+#   end
+# end
+
+# sl = ms[:steplen]
+# cnt[0..-(sl+1)].each_with_index {|e, i| puts "#{i}: #{e}, diff with +#{sl}: #{cnt[i+sl]-e}"}
