@@ -39,11 +39,11 @@ end
 #puts "ans2: #{seen[0].length()}"
 puts "ans2: #{ans2[steps % 2]}"
 
-period = 11
+period = 131
 tries = 5
-target = 5000 # 5000 = 600+400*11 = 600+200*22
-(steps-period..steps).each do |stepno|
-  # next if stepno % 2 != 0
+sumB, sumD = 0, 0
+(steps-(period-1)*2..steps).each do |stepno|
+  next if stepno % 2 != 1
   diff = cnt[stepno] - cnt[stepno - period]
   (1..tries).each do |try|
     diffN = cnt[stepno-period*try] - cnt[stepno-period*(try+1)]
@@ -52,5 +52,16 @@ target = 5000 # 5000 = 600+400*11 = 600+200*22
     end
   end
   puts "#{stepno} (val #{cnt[stepno]}): diff #{diff}"
+  sumB += cnt[stepno]
+  sumD += diff
 end
+puts "sumP #{sumB}, sumD #{sumD}"
+# test input: period = 11
+# - 600 steps: 240644, sumP 17338, sumD 324
+# => 622  steps (+1 cycle):    240644+2*(0+17338+324*2)/2 = 258630
+# => 5000 steps (+200 cycles): 240644+200*(17338+324*2+17986+324*200*2)/2
 
+# prod input: period = 131, 26501365 = 65+20*131 (=2685) + 202280*131
+# - 2685 steps: 6388728, sumP 1185578, sumD 60788
+# => + 101140 cycles: 6388728+101140*(1185578+60788*2 + 1185578+60788*2*101140)/2 = 621944727930768
+puts "ans2 = 621944727930768 :)"
