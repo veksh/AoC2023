@@ -16,6 +16,7 @@ rows, cols = maze.length(), maze[0].length()
 seen = [Set[[sr, sc]]] # enough to keep only last 2
 max_seen = 2
 ans2 = 1
+cnt = [0]
 (1..steps).each do |i|
   puts "step #{i}, sizes: #{seen.map(&:length)}" if i % 100 == 0
   curr_seen = Set.new()
@@ -28,9 +29,28 @@ ans2 = 1
       end
     end
   end
-  ans2 += curr_seen.length() if i % 2 == 0
+  if i % 2 == 0
+    ans2 += curr_seen.length()
+    cnt.push(curr_seen.length())
+  end
   seen.pop() if seen.length > max_seen
 end
 # took 4GB and 2:45 to reach 5K steps on test input :)
 #puts "ans2: #{seen[0].length()}"
 puts "ans2: #{ans2}"
+
+# try to find a period
+(2..cnt.length()/2).each do |step|
+  diff = cnt[-1] - cnt[-1-step]
+  steps = 1
+  (2..cnt.length()/step - 1).each do |nums|
+    if cnt[-1-step*(nums-1)] - cnt[-1-step*nums] == diff
+      steps = nums
+    else
+      break
+    end
+  end
+  if steps > 1
+    puts "#{step}: #{steps} times from #{cnt.length() - steps*step}"
+  end
+end
