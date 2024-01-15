@@ -39,6 +39,15 @@ end
 #puts "ans2: #{seen[0].length()}"
 puts "ans2: #{ans2[steps % 2]}"
 
+# so, lets assume that period is 131 (from some point) and try to calculate
+# differences for each of 131 points in it (they are not the same)
+# actually we need 2*period (because we sum only even or odd values, and next
+# even = odd[pos-131]+its_period)
+# so
+# - produce some number "steps" such as steps = target - x*131*2 (for me it is 65+20*131=2685)
+# - calc unto "steps", then check 2*131 steps back, verify that diffs match
+# - sum diffs and initial values
+# - produce answer as a sum of arithmetic progression = sum[steps] + cycles*(first+last)/2
 period = 131
 tries = 5
 sumB, sumD = 0, 0
