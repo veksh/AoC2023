@@ -39,26 +39,28 @@ end
 #puts "ans2: #{seen[0].length()}"
 puts "ans2: #{ans2[steps % 2]}"
 
-# # try to find a period
-# ms = {:steplen => 1}
-# (2..cnt.length()/2).each do |step|
-#   diff = cnt[-1] - cnt[-1-step]
-#   steps = 1
-#   (2..cnt.length()/step - 1).each do |nums|
-#     if cnt[-1-step*(nums-1)] - cnt[-1-step*nums] == diff
-#       puts "match: #{-1-step*(nums-1)} == #{-1-step*nums} "
-#       steps = nums
-#     else
-#       break
-#     end
-#   end
-#   if steps > 1
-#     puts "step #{step}: #{steps} times from #{cnt.length() - steps*step - 1}, diff #{diff}"
-#   end
-#   if steps > ms[:steplen]
-#     ms[:steplen], ms[:start], ms[:diff] = step, cnt.length() - steps*step - 1, diff
-#   end
-# end
+tgt = 5000
+# try to find a period
+# step width
+(2..cnt.length()/4).each do |period|
+  # end point of search: cover whole step width, bot to top
+  (steps-period..steps).each do |endpoint|
+    # we are interested only in same evennes as a target (26501365 for final)
+    next if (endpoint % 2) != (tgt % 2)
+    # now step over them, watching diff
+    diff = cnt[endpoint] - cnt[endpoint-period]
+    depth = 1
+    (2..cnt.length/period).each do |attempt|
+      att_end = endpoint-attempt*period
+      break if cnt[att_end+period] - cnt[att_end] != diff
+      depth += 1
+    end
+    if depth > 1
+      # temp kill > 11
+      next if period > 11
+      puts "period #{period} for #{depth} times from #{endpoint - period*depth} (val #{cnt[endpoint - period*depth]}) upto #{endpoint} (val #{cnt[endpoint]}), diff #{diff}"
+    end
+  end
+end
 
-# sl = ms[:steplen]
-# cnt[0..-(sl+1)].each_with_index {|e, i| puts "#{i}: #{e}, diff with +#{sl}: #{cnt[i+sl]-e}"}
+# cnt[0..-12].each_with_index {|c, i| puts "#{i}: cnt #{c}, vs +11: #{cnt[i+11]-c}"}
