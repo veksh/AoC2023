@@ -2,7 +2,7 @@
 
 require "set"
 
-steps = ARGV.pop().to_i || 26501365 # 5*11*481843 steps
+steps = ARGV.pop().to_i || 26501365 # 5*11*481843 steps = 202300*131 + 65
 maze = ARGF.readlines().map {|l| l.strip().chars()}
 
 sr = maze.find_index {|r| r.include? "S"}
@@ -39,28 +39,18 @@ end
 #puts "ans2: #{seen[0].length()}"
 puts "ans2: #{ans2[steps % 2]}"
 
-tgt = 5000
-# try to find a period
-# step width
-(2..cnt.length()/4).each do |period|
-  # end point of search: cover whole step width, bot to top
-  (steps-period..steps).each do |endpoint|
-    # we are interested only in same evennes as a target (26501365 for final)
-    next if (endpoint % 2) != (tgt % 2)
-    # now step over them, watching diff
-    diff = cnt[endpoint] - cnt[endpoint-period]
-    depth = 1
-    (2..cnt.length/period).each do |attempt|
-      att_end = endpoint-attempt*period
-      break if cnt[att_end+period] - cnt[att_end] != diff
-      depth += 1
-    end
-    if depth > 1
-      # temp kill > 11
-      next if period > 11
-      puts "period #{period} for #{depth} times from #{endpoint - period*depth} (val #{cnt[endpoint - period*depth]}) upto #{endpoint} (val #{cnt[endpoint]}), diff #{diff}"
+period = 11
+tries = 5
+target = 5000 # 5000 = 600+400*11 = 600+200*22
+(steps-period..steps).each do |stepno|
+  # next if stepno % 2 != 0
+  diff = cnt[stepno] - cnt[stepno - period]
+  (1..tries).each do |try|
+    diffN = cnt[stepno-period*try] - cnt[stepno-period*(try+1)]
+    if diffN != diff
+      puts "#{stepno}: mismatch on try #{try} (want #{diff} got #{diffN})"
     end
   end
+  puts "#{stepno} (val #{cnt[stepno]}): diff #{diff}"
 end
 
-# cnt[0..-12].each_with_index {|c, i| puts "#{i}: cnt #{c}, vs +11: #{cnt[i+11]-c}"}
