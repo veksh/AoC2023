@@ -23,6 +23,7 @@ lines = [list(map(int, re.split("[,~]", l))) for l in open(sys.argv[1]).read().r
 # lowest first
 falling = [Brick(l) for l in lines]
 falling.sort(key = lambda b: b.z[0])
+print("falling:", len(falling))
 
 landed = []
 supports = set()
@@ -51,4 +52,6 @@ for brick in falling:
   print(" landed: %s" % brick)
   landed.append(brick)
 landed.sort(key = lambda b: b.z[0])
+print("landed:", len(landed))
 print("supports: %s" % supports)
+print("ans1:", len(landed) - len(supports))
