@@ -3,12 +3,23 @@
 import sys
 import re
 
+class Brick:
+
+  def __init__(self, coords):
+    self.x = [coords[0], coords[3]]
+    self.y = [coords[1], coords[4]]
+    self.z = [coords[2], coords[5]]
+
+  def __str__(self):
+    return "x %s y %s z %s" % (self.x, self.y, self.z)
+
 lines = [list(map(int, re.split("[,~]", l))) for l in open(sys.argv[1]).read().rstrip("\n").split("\n")]
-falling = []
-for l in lines:
-  # [[x1, x2], [y1, y2], [z1,z2], ...]; x1 <= x2 etc; inclusive,
-  # x and y from 0, z from 1 (box[2][0] == 1 is on the ground)
-  falling.append([[l[0], l[3]], [l[1], l[4]], [l[2], l[5]]])
-# topmost first
-falling.sort(key = lambda box: box[2][1])
-print(falling)
+# [[x1, x2], [y1, y2], [z1,z2], ...]; x1 <= x2 etc; inclusive,
+# x and y from 0, z from 1 (box[2][0] == 1 is on the ground)
+# lowest first
+falling = [Brick(l) for l in lines]
+falling.sort(key = lambda b: b.z[0])
+
+landed = []
+for brick in falling:
+  print("falling: %s" % brick)
