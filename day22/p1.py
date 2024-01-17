@@ -2,6 +2,7 @@
 
 import sys
 import re
+from collections import defaultdict
 
 class Brick:
 
@@ -26,9 +27,9 @@ falling.sort(key = lambda b: b.z[0])
 print("falling:", len(falling))
 
 landed = []
-supports = set()
+supports = defaultdict(list)
 for brick in falling:
-  print("falling: %s" % brick)
+  # print("falling: %s" % brick)
   if brick.z[0] != 1:
     newz = 1
     supp = -1
@@ -36,22 +37,22 @@ for brick in falling:
       if brick_l.z[1] > brick.z[0]:
         continue
       if brick.is_overlap_xy(brick_l):
-        print("  overlaps with %s" % brick_l)
+        # print("  overlaps with %s" % brick_l)
         if brick_l.z[1] + 1 > newz:
           newz = brick_l.z[1] + 1
-          print("   new support %d" % i)
+          # print("   new support %d" % i)
           supp = i
         else:
           if brick_l.z[1] + 1 == newz:
-            print("   dup support")
+            # print("   dup support")
             supp = -1
     brick.z = [newz, brick.z[1] - (brick.z[0] - newz)]
     if supp >= 0:
-      print("  supported just by %d" % supp)
-      supports.add(supp)
-  print(" landed: %s" % brick)
+      # print("  supported just by %d" % supp)
+      supports[supp].append(i)
+  # print(" landed: %s" % brick)
   landed.append(brick)
 landed.sort(key = lambda b: b.z[0])
 print("landed:", len(landed))
-print("supports: %s" % supports)
-print("ans1:", len(landed) - len(supports))
+print("supports: %s" % len(supports.keys()))
+print("ans1:", len(landed) - len(supports.keys()))
