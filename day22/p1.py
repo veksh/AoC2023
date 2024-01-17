@@ -32,12 +32,7 @@ for brick in falling:
     for brick_l in reversed(landed):
       if brick.is_overlap_xy(brick_l):
         print("  overlaps with %s" % brick_l)
-        if not brick_l.is_overlap_xy(brick):
-          print("  thats unfair! reverse is wrong")
         minz = max(minz, brick_l.z[1] + 1)
-      else:
-        if brick_l.is_overlap_xy(brick):
-          print("  thats unfair! peer overlaps with %s" % brick_l)
-    brick.z = [brick.z[0] - (brick.z[1] - minz), minz]
+    brick.z = [minz, brick.z[1] - (brick.z[0] - minz)]
   print(" landed: %s" % brick)
   landed.append(brick)
