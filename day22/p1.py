@@ -25,14 +25,30 @@ falling = [Brick(l) for l in lines]
 falling.sort(key = lambda b: b.z[0])
 
 landed = []
+supports = set()
 for brick in falling:
   print("falling: %s" % brick)
   if brick.z[0] != 1:
-    minz = 1
-    for brick_l in reversed(landed):
+    newz = 1
+    supp = -1
+    for i, brick_l in enumerate(landed):
+      if brick_l.z[1] > brick.z[0]:
+        break
       if brick.is_overlap_xy(brick_l):
         print("  overlaps with %s" % brick_l)
-        minz = max(minz, brick_l.z[1] + 1)
-    brick.z = [minz, brick.z[1] - (brick.z[0] - minz)]
+        if brick_l.z[1] + 1 > newz:
+          newz = brick_l.z[1] + 1
+          print("   new support %d" % i)
+          supp = i
+        else:
+          if brick_l.z[1] + 1 == newz:
+            print("   dup support")
+            supp = -1
+    brick.z = [newz, brick.z[1] - (brick.z[0] - newz)]
+    if supp >= 0:
+      print("  supported just by %d" % supp)
+      supports.add(supp)
   print(" landed: %s" % brick)
   landed.append(brick)
+landed.sort(key = lambda b: b.z[0])
+print("supports: %s" % supports)
