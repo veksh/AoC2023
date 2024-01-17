@@ -28,7 +28,7 @@ print("falling:", len(falling))
 
 landed = []
 supports = defaultdict(list)
-for brick in falling:
+for f, brick in enumerate(falling):
   # print("falling: %s" % brick)
   if brick.z[0] != 1:
     newz = 1
@@ -48,11 +48,12 @@ for brick in falling:
             supp = -1
     brick.z = [newz, brick.z[1] - (brick.z[0] - newz)]
     if supp >= 0:
-      # print("  supported just by %d" % supp)
-      supports[supp].append(i)
+      print("%d supported just by %d" % (f, supp))
+      supports[supp].append(f)
   # print(" landed: %s" % brick)
   landed.append(brick)
 landed.sort(key = lambda b: b.z[0])
 print("landed:", len(landed))
 print("supports: %s" % len(supports.keys()))
 print("ans1:", len(landed) - len(supports.keys()))
+print(supports)
