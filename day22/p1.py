@@ -34,7 +34,7 @@ for brick in falling:
     supp = -1
     for i, brick_l in enumerate(landed):
       if brick_l.z[1] > brick.z[0]:
-        break
+        continue
       if brick.is_overlap_xy(brick_l):
         print("  overlaps with %s" % brick_l)
         if brick_l.z[1] + 1 > newz:
