@@ -2,6 +2,7 @@
 
 import sys
 import re
+from collections import defaultdict
 
 class Brick:
 
@@ -23,32 +24,50 @@ lines = [list(map(int, re.split("[,~]", l))) for l in open(sys.argv[1]).read().r
 # lowest first
 falling = [Brick(l) for l in lines]
 falling.sort(key = lambda b: b.z[0])
-# print("falling:", len(falling))
+print("falling:", len(falling))
 
 landed = []
-supports = set()
-for brick in falling:
+supports = defaultdict(list)
+supported = {}
+for b, brick in enumerate(falling):
   # print("falling: %s" % brick)
   if brick.z[0] != 1:
     newz = 1
     supp = -1
-    for i, brick_l in enumerate(landed):
+    for s, brick_l in enumerate(landed):
       if brick_l.z[1] > brick.z[0]:
         continue
       if brick.is_overlap_xy(brick_l):
         # print("  overlaps with %s" % brick_l)
         if brick_l.z[1] + 1 > newz:
           newz = brick_l.z[1] + 1
-          # print("   new support %d" % i)
-          supp = i
+          # print("   new support %d" % s)
+          supp = s
+          supported[b] = set([s])
         else:
           if brick_l.z[1] + 1 == newz:
             # print("   dup support")
             supp = -1
+            supported[b].add(s)
     brick.z = [newz, brick.z[1] - (brick.z[0] - newz)]
     if supp >= 0:
-      # print("  supported just by %d" % supp)
-      supports.add(supp)
+      # print("%d supported just by %d" % (b, supp))
+      supports[supp].append(b)
   # print(" landed: %s" % brick)
   landed.append(brick)
-print("ans1:", len(landed) - len(supports))
+landed.sort(key = lambda b: b.z[0])
+print("landed:", len(landed))
+print("supports: %s" % len(supports.keys()))
+print("ans1:", len(landed) - len(supports.keys()))
+print(supports)
+print(supported)
+
+# ans2 = 0
+# for brick in supports.keys():
+#   all_removed = set()
+#   q = [brick]
+#   while len(q) > 0:
+#     b = q.pop()
+#     all_removed.add(b)
+#     for lays_on in supported[b]:
+#       if len()
