@@ -3,6 +3,7 @@
 import sys
 import re
 from collections import defaultdict
+from collections import deque
 
 class Brick:
 
@@ -54,17 +55,21 @@ for b, brick in enumerate(falling):
         supports[s].add(b)
   # print(" landed: %s" % brick)
   landed.append(brick)
-print("supports:", supports)
-print("supported:", supported)
+# print("supports:", supports)
+# print("supported:", supported)
 uniqs = set([list(s)[0] for b, s in supported.items() if len(s) == 1])
+# print("uniqs:", uniqs)
 print("ans1:", len(landed) - len(uniqs))
 
-# ans2 = 0
-# for brick in supports.keys():
-#   all_removed = set()
-#   q = [brick]
-#   while len(q) > 0:
-#     b = q.pop()
-#     all_removed.add(b)
-#     for lays_on in supported[b]:
-#       if len()
+ans2 = 0
+for brick in uniqs:
+  all_removed = set()
+  q = deque([brick])
+  while len(q) > 0:
+    b = q.pop()
+    all_removed.add(b)
+    for supportee in supports[b]:
+      if len(supported[supportee] - all_removed) == 0:
+        q.appendleft(supportee)
+        ans2 += 1
+print("ans2:", ans2)
