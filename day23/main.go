@@ -86,7 +86,7 @@ func buildGraph(maze []string) map[rc](map[rc]int) {
 	start, first, end := rc{0, 1}, rc{1, 1}, rc{len(maze)-1, len(maze[0]) - 2}
 	fmt.Println("start at", start, "end at", end)
 	edges := map[rc]map[rc]int{}
-	seen := map[rc]map[rc]void{}
+	seen := map[rc]void{}
 	q := []pathVector{{start, first}}
 	for len(q) > 0 {
 		fmt.Println("looking at", q[0].next, "from", q[0].prev)
@@ -115,17 +115,11 @@ func buildGraph(maze []string) map[rc](map[rc]int) {
 			// crossroads
 			fmt.Println(" edge to", curr, "len", edge_len, "nexts", nexts)
 			edges[edge_start][curr] = edge_len
-			if already_seens, ok := seen[curr]; ok {
-				if _, ok2 := already_seens[prev]; ok2 {
-					fmt.Println("  already seen from", prev)
-					continue
-				} else {
-					fmt.Println("  not yet seen from", prev, "only from", already_seens)
-					seen[curr][prev] = void{}
-				}
-			} else {
-				seen[curr] = map[rc]void{prev: {}}
+			if _, ok := seen[curr]; ok {
+				fmt.Println("  already seen")
+				continue
 			}
+			seen[curr] = void{}
 			for _, n := range(nexts) {
 				q = append(q, pathVector{curr, n})
 			}
@@ -136,21 +130,6 @@ func buildGraph(maze []string) map[rc](map[rc]int) {
 
 func main() {
 	maze := readMaze()
-	// fmt.Println(getNeigh(maze, rc{13, 13}))
-	// for r, row := range(maze) {
-	// 	for c, sym := range(row) {
-	// 		if sym == '#' {
-	// 			continue
-	// 		}
-	// 		// all are signposted
-	// 		if len(getNeigh(maze, rc{r, c}, rc{0, 0})) > 2 {
-	// 			fmt.Printf("non-trivial cross at %d:%d", r, c)
-	// 		}
-	// 		if len(lo.Filter(getNeigh(maze, rc{r, c}, rc{0, 0}), func(pos rc, _ int) bool {return maze[pos.r][pos.c] != '.'})) == 2 {
-	// 			fmt.Printf("cross at %d:%d\n", r, c)
-	// 		}
-	// 	}
-	// }
 	g := buildGraph(maze)
 	fmt.Println("edges:")
 	for src, edges := range(g) {
