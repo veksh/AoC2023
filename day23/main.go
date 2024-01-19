@@ -40,6 +40,8 @@ var moves = map[move]drc {
 	'^': {-1, 0},
 }
 
+var part1 = true
+
 func getNeigh(maze []string, pos rc, prevPos rc) (good_neigh []rc, is_cross bool) {
 	sym := maze[pos.r][pos.c]
 	// mandatory slide, cannot be crossroads
@@ -65,7 +67,10 @@ func getNeigh(maze []string, pos rc, prevPos rc) (good_neigh []rc, is_cross bool
 		}
 		// do not go against the slide
 		if (s == '<' && ns == '>') || (s == '>' && ns == '<') || (s == '^' && ns == 'v') || (s == 'v' && ns == '^') {
-			continue
+			// only in part1 :)
+			if part1 {
+				continue
+			}
 		}
 		good_neigh = append(good_neigh, n)
 	}
@@ -139,16 +144,41 @@ func findLongest(from rc, end rc, graph map[rc](map[rc]int)) int {
 	return res
 }
 
-func main() {
-	maze := readMaze()
-	g := buildGraph(maze)
+func findLongestNOC(from rc, end rc, graph map[rc](map[rc]int), seen map[rc]void) int {
+	if from == end {
+		return 0
+	}
+	res := 0
+	seen[from] = void{}
+	for neigh, length := range(graph[from]) {
+		if _, ok := seen[neigh]; ok {
+			continue
+		}
+		res = max(res, length + findLongestNOC(neigh, end, graph, seen))
+	}
+	delete(seen, from)
+	return res
+}
+
+func printGraph(graph map[rc](map[rc]int)) {
 	fmt.Println("edges:")
-	for src, edges := range(g) {
+	for src, edges := range(graph) {
 		fmt.Printf("from %v\n", src)
 		for dst, len := range(edges) {
 			fmt.Printf(" to %v len %d\n", dst, len)
 		}
 	}
-	ans1 := findLongest(rc{0, 1}, rc{len(maze)-1, len(maze[0]) - 2}, g)
-	fmt.Println("ans1:", ans1)
+}
+
+func ans1(maze []string) int {
+	g := buildGraph(maze)
+	printGraph(g)
+	return findLongest(rc{0, 1}, rc{len(maze)-1, len(maze[0]) - 2}, g)
+}
+
+func main() {
+	maze := readMaze()
+	fmt.Println("ans1:", ans1(maze))
+	// ans2 := findLongestNOC(rc{0, 1}, rc{len(maze)-1, len(maze[0]) - 2}, g, map[rc]void{})
+	// fmt.Println("ans2:", ans2) // 6581 is too high :)
 }
