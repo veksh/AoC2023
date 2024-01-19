@@ -40,18 +40,16 @@ var moves = map[move]drc {
 	'^': {-1, 0},
 }
 
-func getNeigh(maze []string, pos rc, prevPos rc) (good_neigh []rc) {
+func getNeigh(maze []string, pos rc, prevPos rc) (good_neigh []rc, is_cross bool) {
 	sym := maze[pos.r][pos.c]
-	// mandatory slide
+	// mandatory slide, cannot be crossroads
 	if d, ok := moves[move(sym)]; ok {
-		return []rc{pos.add(d)}
+		return []rc{pos.add(d)}, false
 	}
-	res := []rc{}
+	good_neigh = []rc{}
+	not_walls := 0
 	for s, d := range(moves) {
 		n := pos.add(d)
-		if n == prevPos {
-			continue
-		}
 		// actually it is walled so no need except for finish line
 		if n.r > len(maze)-1 || n.r < 0 || n.c > len(maze[0])-1 || n.c < 0 {
 			continue
@@ -60,13 +58,19 @@ func getNeigh(maze []string, pos rc, prevPos rc) (good_neigh []rc) {
 		if ns == '#' {
 			continue
 		}
+		not_walls += 1
+		// dont look back
+		if n == prevPos {
+			continue
+		}
 		// do not go against the slide
 		if (s == '<' && ns == '>') || (s == '>' && ns == '<') || (s == '^' && ns == 'v') || (s == 'v' && ns == '^') {
 			continue
 		}
-		res = append(res, n)
+		good_neigh = append(good_neigh, n)
 	}
-	return res
+	// also cross if first or last row (entry or exit)
+	return good_neigh, not_walls != 2 || pos.r == 0 || pos.r == len(maze) - 1
 }
 
 type pathVector struct {
@@ -82,7 +86,7 @@ func buildGraph(maze []string) map[rc](map[rc]int) {
 	start, first, end := rc{0, 1}, rc{1, 1}, rc{len(maze)-1, len(maze[0]) - 2}
 	fmt.Println("start at", start, "end at", end)
 	edges := map[rc]map[rc]int{}
-	seen := map[rc]void{}
+	seen := map[rc]map[rc]void{}
 	q := []pathVector{{start, first}}
 	for len(q) > 0 {
 		fmt.Println("looking at", q[0].next, "from", q[0].prev)
@@ -92,13 +96,12 @@ func buildGraph(maze []string) map[rc](map[rc]int) {
 		if _, ok := edges[edge_start]; !ok {
 			edges[edge_start] = map[rc]int{}
 		}
-		for len(nexts) == 1 {
-			curr, nexts = nexts[0], getNeigh(maze, nexts[0], curr)
+		var prev rc
+		cross := false
+		for !cross {
+			prev, curr = curr, nexts[0]
+			nexts, cross = getNeigh(maze, curr, prev)
 			edge_len += 1
-			if _, ok := seen[curr]; ok {
-				fmt.Println(" reached seen")
-				continue
-			}
 		}
 		if len(nexts) == 0 {
 			// hope we've reached the end
@@ -112,11 +115,17 @@ func buildGraph(maze []string) map[rc](map[rc]int) {
 			// crossroads
 			fmt.Println(" edge to", curr, "len", edge_len, "nexts", nexts)
 			edges[edge_start][curr] = edge_len
-			if _, ok := seen[curr]; ok {
-				fmt.Println("  already seen")
-				continue
+			if already_seens, ok := seen[curr]; ok {
+				if _, ok2 := already_seens[prev]; ok2 {
+					fmt.Println("  already seen from", prev)
+					continue
+				} else {
+					fmt.Println("  not yet seen from", prev, "only from", already_seens)
+					seen[curr][prev] = void{}
+				}
+			} else {
+				seen[curr] = map[rc]void{prev: {}}
 			}
-			seen[curr] = void{}
 			for _, n := range(nexts) {
 				q = append(q, pathVector{curr, n})
 			}
