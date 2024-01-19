@@ -5,6 +5,8 @@ import (
 	"fmt"
 	"log"
 	"os"
+
+	"github.com/samber/lo"
 )
 
 type rc  struct {r, c int}
@@ -64,14 +66,18 @@ func getNeigh(maze []string, pos rc) []rc {
 
 func main() {
 	maze := readMaze()
-	// fmt.Println(getNeigh(maze, rc{5, 3}))
+	// fmt.Println(getNeigh(maze, rc{13, 13}))
 	for r, row := range(maze) {
 		for c, sym := range(row) {
 			if sym == '#' {
 				continue
 			}
+			// all are signposted
 			if len(getNeigh(maze, rc{r, c})) > 2 {
-				fmt.Printf("cross at %d:%d", r, c)
+				fmt.Printf("non-trivial cross at %d:%d", r, c)
+			}
+			if len(lo.Filter(getNeigh(maze, rc{r, c}), func(pos rc, _ int) bool {return maze[pos.r][pos.c] != '.'})) == 2 {
+				fmt.Printf("cross at %d:%d\n", r, c)
 			}
 		}
 	}
