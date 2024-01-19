@@ -40,7 +40,6 @@ var moves = map[move]drc {
 	'^': {-1, 0},
 }
 
-type void struct{}
 func getNeigh(maze []string, pos rc, prevPos rc) (good_neigh []rc) {
 	sym := maze[pos.r][pos.c]
 	// mandatory slide
@@ -75,15 +74,19 @@ type pathVector struct {
 	next rc
 }
 
+type void struct{}
+
 // convert maze to adjacency graph: vertex -> dst -> length
 // no dead ends?
 func buildGraph(maze []string) map[rc](map[rc]int) {
 	start, first, end := rc{0, 1}, rc{1, 1}, rc{len(maze)-1, len(maze[0]) - 2}
 	fmt.Println("start at", start, "end at", end)
 	edges := map[rc]map[rc]int{}
+	seen := map[rc]void{}
 	q := []pathVector{{start, first}}
 	for len(q) > 0 {
 		curr, nexts := q[0].prev, []rc{q[0].next}
+		q = q[1:]
 		edge_start, edge_len := curr, 0
 		if _, ok := edges[edge_start]; !ok {
 			edges[edge_start] = map[rc]int{}
@@ -103,11 +106,15 @@ func buildGraph(maze []string) map[rc](map[rc]int) {
 			// crossroads
 			fmt.Println("crossroads at", curr, "nexts", nexts)
 			edges[edge_start][curr] = edge_len
+			if _, ok := seen[curr]; ok {
+				fmt.Println(" already seen")
+				continue
+			}
+			seen[curr] = void{}
 			for _, n := range(nexts) {
 				q = append(q, pathVector{curr, n})
 			}
 		}
-		q = q[1:]
 	}
 	return edges
 }
