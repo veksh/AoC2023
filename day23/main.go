@@ -28,25 +28,26 @@ func readMaze() []string {
 	for scanner.Scan() {
 		maze = append(maze, scanner.Text())
 	}
-	return maze
+	return maze // start == 0, 1; end == N,N-1
 }
 
-// values also used as steps/directions
-var slides = map[byte]drc {
+// moves are also slides values also used as steps/directions
+type move byte
+var moves = map[move]drc {
 	'>': {0, 1},
 	'<': {0, -1},
 	'v': {1, 0},
 	'^': {-1, 0},
 }
 
-func getNeigh(maze []string, pos rc) []rc {
+func getNeigh(maze []string, pos rc) (good_neigh []rc) {
 	sym := maze[pos.r][pos.c]
 	// mandatory slide
-	if d, ok := slides[sym]; ok {
+	if d, ok := moves[move(sym)]; ok {
 		return []rc{pos.add(d)}
 	}
 	res := []rc{}
-	for s, d := range(slides) {
+	for s, d := range(moves) {
 		n := pos.add(d)
 		if n.r > len(maze)-1 || n.r < 0 || n.c > len(maze[0])-1 || n.c < 0 {
 			continue
