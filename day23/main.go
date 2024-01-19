@@ -128,6 +128,17 @@ func buildGraph(maze []string) map[rc](map[rc]int) {
 	return edges
 }
 
+func findLongest(from rc, end rc, graph map[rc](map[rc]int)) int {
+	if from == end {
+		return 0
+	}
+	res := 0
+	for neigh, length := range(graph[from]) {
+		res = max(res, length + findLongest(neigh, end, graph))
+	}
+	return res
+}
+
 func main() {
 	maze := readMaze()
 	g := buildGraph(maze)
@@ -138,4 +149,6 @@ func main() {
 			fmt.Printf(" to %v len %d\n", dst, len)
 		}
 	}
+	ans1 := findLongest(rc{0, 1}, rc{len(maze)-1, len(maze[0]) - 2}, g)
+	fmt.Println("ans1:", ans1)
 }
