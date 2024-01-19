@@ -85,6 +85,7 @@ func buildGraph(maze []string) map[rc](map[rc]int) {
 	seen := map[rc]void{}
 	q := []pathVector{{start, first}}
 	for len(q) > 0 {
+		fmt.Println("looking at", q[0].next, "from", q[0].prev)
 		curr, nexts := q[0].prev, []rc{q[0].next}
 		q = q[1:]
 		edge_start, edge_len := curr, 0
@@ -94,6 +95,10 @@ func buildGraph(maze []string) map[rc](map[rc]int) {
 		for len(nexts) == 1 {
 			curr, nexts = nexts[0], getNeigh(maze, nexts[0], curr)
 			edge_len += 1
+			if _, ok := seen[curr]; ok {
+				fmt.Println(" reached seen")
+				continue
+			}
 		}
 		if len(nexts) == 0 {
 			// hope we've reached the end
@@ -101,13 +106,14 @@ func buildGraph(maze []string) map[rc](map[rc]int) {
 				fmt.Println("*** cul-de-sac at", curr)
 				continue
 			}
+			fmt.Println(" reached the end from", edge_start)
 			edges[edge_start][end] = edge_len
 		} else {
 			// crossroads
-			fmt.Println("crossroads at", curr, "nexts", nexts)
+			fmt.Println(" edge to", curr, "len", edge_len, "nexts", nexts)
 			edges[edge_start][curr] = edge_len
 			if _, ok := seen[curr]; ok {
-				fmt.Println(" already seen")
+				fmt.Println("  already seen")
 				continue
 			}
 			seen[curr] = void{}
