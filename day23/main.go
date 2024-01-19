@@ -101,7 +101,8 @@ func buildGraph(maze []string) map[rc](map[rc]int) {
 			edges[edge_start][end] = edge_len
 		} else {
 			// crossroads
-			fmt.Println("crossroads at", curr)
+			fmt.Println("crossroads at", curr, "nexts", nexts)
+			edges[edge_start][curr] = edge_len
 			for _, n := range(nexts) {
 				q = append(q, pathVector{curr, n})
 			}
@@ -129,5 +130,11 @@ func main() {
 	// 	}
 	// }
 	g := buildGraph(maze)
-	fmt.Println(g)
+	fmt.Println("edges:")
+	for src, edges := range(g) {
+		fmt.Printf("from %v\n", src)
+		for dst, len := range(edges) {
+			fmt.Printf(" to %v len %d\n", dst, len)
+		}
+	}
 }
