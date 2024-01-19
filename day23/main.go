@@ -6,7 +6,7 @@ import (
 	"log"
 	"os"
 
-	"github.com/samber/lo"
+	// "github.com/samber/lo"
 )
 
 type rc  struct {r, c int}
@@ -28,7 +28,7 @@ func readMaze() []string {
 	for scanner.Scan() {
 		maze = append(maze, scanner.Text())
 	}
-	return maze // start == 0, 1; end == N,N-1
+	return maze
 }
 
 // moves are also slides values also used as steps/directions
@@ -40,7 +40,8 @@ var moves = map[move]drc {
 	'^': {-1, 0},
 }
 
-func getNeigh(maze []string, pos rc) (good_neigh []rc) {
+type void struct{}
+func getNeigh(maze []string, pos rc, prevPos rc) (good_neigh []rc) {
 	sym := maze[pos.r][pos.c]
 	// mandatory slide
 	if d, ok := moves[move(sym)]; ok {
@@ -49,6 +50,10 @@ func getNeigh(maze []string, pos rc) (good_neigh []rc) {
 	res := []rc{}
 	for s, d := range(moves) {
 		n := pos.add(d)
+		if n == prevPos {
+			continue
+		}
+		// actually it is walled so no need except for finish line
 		if n.r > len(maze)-1 || n.r < 0 || n.c > len(maze[0])-1 || n.c < 0 {
 			continue
 		}
@@ -65,21 +70,64 @@ func getNeigh(maze []string, pos rc) (good_neigh []rc) {
 	return res
 }
 
+type pathVector struct {
+	prev rc
+	next rc
+}
+
+// convert maze to adjacency graph: vertex -> dst -> length
+// no dead ends?
+func buildGraph(maze []string) map[rc](map[rc]int) {
+	start, first, end := rc{0, 1}, rc{1, 1}, rc{len(maze)-1, len(maze[0]) - 2}
+	fmt.Println("start at", start, "end at", end)
+	edges := map[rc]map[rc]int{}
+	q := []pathVector{{start, first}}
+	for len(q) > 0 {
+		curr, nexts := q[0].prev, []rc{q[0].next}
+		edge_start, edge_len := curr, 0
+		if _, ok := edges[edge_start]; !ok {
+			edges[edge_start] = map[rc]int{}
+		}
+		for len(nexts) == 1 {
+			curr, nexts = nexts[0], getNeigh(maze, nexts[0], curr)
+			edge_len += 1
+		}
+		if len(nexts) == 0 {
+			// hope we've reached the end
+			if curr != end {
+				fmt.Println("*** cul-de-sac at", curr)
+				continue
+			}
+			edges[edge_start][end] = edge_len
+		} else {
+			// crossroads
+			fmt.Println("crossroads at", curr)
+			for _, n := range(nexts) {
+				q = append(q, pathVector{curr, n})
+			}
+		}
+		q = q[1:]
+	}
+	return edges
+}
+
 func main() {
 	maze := readMaze()
 	// fmt.Println(getNeigh(maze, rc{13, 13}))
-	for r, row := range(maze) {
-		for c, sym := range(row) {
-			if sym == '#' {
-				continue
-			}
-			// all are signposted
-			if len(getNeigh(maze, rc{r, c})) > 2 {
-				fmt.Printf("non-trivial cross at %d:%d", r, c)
-			}
-			if len(lo.Filter(getNeigh(maze, rc{r, c}), func(pos rc, _ int) bool {return maze[pos.r][pos.c] != '.'})) == 2 {
-				fmt.Printf("cross at %d:%d\n", r, c)
-			}
-		}
-	}
+	// for r, row := range(maze) {
+	// 	for c, sym := range(row) {
+	// 		if sym == '#' {
+	// 			continue
+	// 		}
+	// 		// all are signposted
+	// 		if len(getNeigh(maze, rc{r, c}, rc{0, 0})) > 2 {
+	// 			fmt.Printf("non-trivial cross at %d:%d", r, c)
+	// 		}
+	// 		if len(lo.Filter(getNeigh(maze, rc{r, c}, rc{0, 0}), func(pos rc, _ int) bool {return maze[pos.r][pos.c] != '.'})) == 2 {
+	// 			fmt.Printf("cross at %d:%d\n", r, c)
+	// 		}
+	// 	}
+	// }
+	g := buildGraph(maze)
+	fmt.Println(g)
 }
