@@ -176,9 +176,17 @@ func ans1(maze []string) int {
 	return findLongest(rc{0, 1}, rc{len(maze)-1, len(maze[0]) - 2}, g)
 }
 
+func ans2(maze []string) int {
+	part1 = false
+	g := buildGraph(maze)
+	printGraph(g)
+	// 6581 is too high :)
+	// return findLongestNOC(rc{0, 1}, rc{len(maze)-1, len(maze[0]) - 2}, g, map[rc]void{})
+	return 0
+}
+
 func main() {
 	maze := readMaze()
 	fmt.Println("ans1:", ans1(maze))
-	// ans2 := findLongestNOC(rc{0, 1}, rc{len(maze)-1, len(maze[0]) - 2}, g, map[rc]void{})
-	// fmt.Println("ans2:", ans2) // 6581 is too high :)
+	fmt.Println("ans2:", ans2(maze))
 }
