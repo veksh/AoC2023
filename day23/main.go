@@ -46,10 +46,10 @@ func getNeigh(maze []string, pos rc) []rc {
 	res := []rc{}
 	for s, d := range(slides) {
 		n := pos.add(d)
-		ns := maze[n.r][n.c]
-		if n.r > len(maze) || n.r < 0 || n.c > len(maze[0]) || n.c < 0 {
+		if n.r > len(maze)-1 || n.r < 0 || n.c > len(maze[0])-1 || n.c < 0 {
 			continue
 		}
+		ns := maze[n.r][n.c]
 		if ns == '#' {
 			continue
 		}
@@ -64,5 +64,15 @@ func getNeigh(maze []string, pos rc) []rc {
 
 func main() {
 	maze := readMaze()
-	fmt.Println(getNeigh(maze, rc{5, 3}))
+	// fmt.Println(getNeigh(maze, rc{5, 3}))
+	for r, row := range(maze) {
+		for c, sym := range(row) {
+			if sym == '#' {
+				continue
+			}
+			if len(getNeigh(maze, rc{r, c})) > 2 {
+				fmt.Printf("cross at %d:%d", r, c)
+			}
+		}
+	}
 }
