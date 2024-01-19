@@ -5,8 +5,6 @@ import (
 	"fmt"
 	"log"
 	"os"
-
-	"golang.org/x/exp/maps"
 )
 
 type rc  struct {r, c int}
@@ -46,12 +44,17 @@ func getNeigh(maze []string, pos rc) []rc {
 		return []rc{pos.add(d)}
 	}
 	res := []rc{}
-	for _, d := range(maps.Values(slides)) {
+	for s, d := range(slides) {
 		n := pos.add(d)
+		ns := maze[n.r][n.c]
 		if n.r > len(maze) || n.r < 0 || n.c > len(maze[0]) || n.c < 0 {
 			continue
 		}
-		if maze[n.r][n.c] == '#' {
+		if ns == '#' {
+			continue
+		}
+		// do not go against the slide
+		if (s == '<' && ns == '>') || (s == '>' && ns == '<') || (s == '^' && ns == 'v') || (s == 'v' && ns == '^') {
 			continue
 		}
 		res = append(res, n)
@@ -61,5 +64,5 @@ func getNeigh(maze []string, pos rc) []rc {
 
 func main() {
 	maze := readMaze()
-	fmt.Println(getNeigh(maze, rc{1, 2}))
+	fmt.Println(getNeigh(maze, rc{5, 3}))
 }
