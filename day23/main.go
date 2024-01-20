@@ -87,10 +87,15 @@ func buildGraph(maze []string) map[rc](map[rc]int) {
 	q := []pathVector{{start, first}}
 	for len(q) > 0 {
 		v := q[0]
-		fmt.Println("looking at", v.next, "from", v.prev)
-		curr, nexts := v.prev, []rc{v.next}
-		seen[v.next] = void{}
 		q = q[1:]
+		fmt.Println("looking at", v.next, "from", v.prev)
+		// do not go out if path was already taken
+		if _, ok := seen[v.next]; ok {
+			fmt.Println(" already seen it")
+			continue
+		}
+		seen[v.next] = void{}
+		curr, nexts := v.prev, []rc{v.next}
 		edge_start, edge_len := curr, 0
 		if _, ok := edges[edge_start]; !ok {
 			edges[edge_start] = map[rc]int{}
@@ -102,7 +107,6 @@ func buildGraph(maze []string) map[rc](map[rc]int) {
 			nexts, cross = getNeigh(maze, curr, prev)
 			edge_len += 1
 		}
-		// add reverse edge and do not go out from this node via this path
 		if len(nexts) == 0 {
 			// hope we've reached the end
 			if curr != end {
@@ -122,10 +126,6 @@ func buildGraph(maze []string) map[rc](map[rc]int) {
 			}
 			edges[curr][edge_start] = edge_len
 			for _, n := range(nexts) {
-				// do not go out if path was already taken
-				if _, ok := seen[n]; ok {
-					continue
-				}
 				q = append(q, pathVector{curr, n})
 			}
 		}
