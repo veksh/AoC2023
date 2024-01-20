@@ -40,8 +40,6 @@ var moves = map[move]drc {
 	'^': {-1, 0},
 }
 
-var part1 = true
-
 func getNeigh(maze []string, pos rc, prevPos rc) (good_neigh []rc, is_cross bool) {
 	sym := maze[pos.r][pos.c]
 	// mandatory slide, cannot be crossroads
@@ -50,7 +48,7 @@ func getNeigh(maze []string, pos rc, prevPos rc) (good_neigh []rc, is_cross bool
 	}
 	good_neigh = []rc{}
 	not_walls := 0
-	for s, d := range(moves) {
+	for _, d := range(moves) {
 		n := pos.add(d)
 		// actually it is walled so no need except for finish line
 		if n.r > len(maze)-1 || n.r < 0 || n.c > len(maze[0])-1 || n.c < 0 {
@@ -64,13 +62,6 @@ func getNeigh(maze []string, pos rc, prevPos rc) (good_neigh []rc, is_cross bool
 		// dont look back
 		if n == prevPos {
 			continue
-		}
-		// do not go against the slide
-		if (s == '<' && ns == '>') || (s == '>' && ns == '<') || (s == '^' && ns == 'v') || (s == 'v' && ns == '^') {
-			// only in part1 :)
-			if part1 {
-				continue
-			}
 		}
 		good_neigh = append(good_neigh, n)
 	}
@@ -86,7 +77,8 @@ type pathVector struct {
 type void struct{}
 
 // convert maze to adjacency graph: vertex -> dst -> length
-// no dead ends?
+// there are not dead ends
+// in p2 slopes are just like normal paths, so vertices are bidirectional
 func buildGraph(maze []string) map[rc](map[rc]int) {
 	start, first, end := rc{0, 1}, rc{1, 1}, rc{len(maze)-1, len(maze[0]) - 2}
 	fmt.Println("start at", start, "end at", end)
@@ -94,8 +86,10 @@ func buildGraph(maze []string) map[rc](map[rc]int) {
 	seen := map[rc]void{}
 	q := []pathVector{{start, first}}
 	for len(q) > 0 {
-		fmt.Println("looking at", q[0].next, "from", q[0].prev)
-		curr, nexts := q[0].prev, []rc{q[0].next}
+		v := q[0]
+		fmt.Println("looking at", v.next, "from", v.prev)
+		curr, nexts := v.prev, []rc{v.next}
+		seen[v.next] = void{}
 		q = q[1:]
 		edge_start, edge_len := curr, 0
 		if _, ok := edges[edge_start]; !ok {
@@ -108,6 +102,7 @@ func buildGraph(maze []string) map[rc](map[rc]int) {
 			nexts, cross = getNeigh(maze, curr, prev)
 			edge_len += 1
 		}
+		// add reverse edge and do not go out from this node via this path
 		if len(nexts) == 0 {
 			// hope we've reached the end
 			if curr != end {
@@ -118,14 +113,19 @@ func buildGraph(maze []string) map[rc](map[rc]int) {
 			edges[edge_start][end] = edge_len
 		} else {
 			// crossroads
-			fmt.Println(" edge to", curr, "len", edge_len, "nexts", nexts)
+			fmt.Println(" edge with", curr, "len", edge_len, "nexts", nexts)
 			edges[edge_start][curr] = edge_len
-			if _, ok := seen[curr]; ok {
-				fmt.Println("  already seen")
-				continue
+			// add reverse edge and do not go out from this node via this path
+			seen[prev] = void{}
+			if _, ok := edges[curr]; !ok {
+				edges[curr] = map[rc]int{}
 			}
-			seen[curr] = void{}
+			edges[curr][edge_start] = edge_len
 			for _, n := range(nexts) {
+				// do not go out if path was already taken
+				if _, ok := seen[n]; ok {
+					continue
+				}
 				q = append(q, pathVector{curr, n})
 			}
 		}
@@ -177,21 +177,7 @@ func ans1(maze []string) int {
 }
 
 func ans2(maze []string) int {
-	part1 = false
 	g := buildGraph(maze)
-	start, end:= rc{0, 1}, rc{len(maze)-1, len(maze[0]) - 2}
-	for src, edges := range(g) {
-		for dst, len := range(edges) {
-			if src == start || dst == end {
-				continue
-			}
-			if _, ok := g[dst]; ok {
-				g[dst][src] = len
-			} else {
-				g[dst] = map[rc]int{src: len}
-			}
-		}
-	}
 	printGraph(g)
 	// 6581 is too high :)
 	return findLongestNOC(rc{0, 1}, rc{len(maze)-1, len(maze[0]) - 2}, g, map[rc]void{})
@@ -199,6 +185,6 @@ func ans2(maze []string) int {
 
 func main() {
 	maze := readMaze()
-	fmt.Println("ans1:", ans1(maze))
+	// fmt.Println("ans1:", ans1(maze))
 	fmt.Println("ans2:", ans2(maze))
 }
