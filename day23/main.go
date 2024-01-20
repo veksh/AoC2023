@@ -4,6 +4,7 @@ import (
 	"bufio"
 	"fmt"
 	"log"
+	"math"
 	"os"
 	// "github.com/samber/lo"
 )
@@ -159,6 +160,28 @@ func findLongestNOC(from rc, end rc, graph map[rc](map[rc]int), seen map[rc]void
 	return res
 }
 
+func findLongestBF(from rc, end rc, graph map[rc](map[rc]int)) int {
+	parent, dist := map[rc]rc{}, map[rc]int{}
+	for v := range(graph) {
+		dist[v] = math.MaxInt32
+	}
+	dist[from] = 0
+	dist[end] = math.MaxInt32
+	for i := 0; i <= len(graph); i++ {
+		for v, neigh := range(graph) {
+			for n, nDist := range(neigh) {
+				if dist[n] > dist[v] + nDist {
+					fmt.Printf("%v: dist %d parent %v\n", n, dist[v] + nDist, v)
+					dist[n] = dist[v] + nDist
+					parent[n] = v
+				}
+			}
+		}
+	}
+	fmt.Println(dist)
+	return dist[end]
+}
+
 func printGraph(graph map[rc](map[rc]int)) {
 	fmt.Println("edges:")
 	for src, edges := range(graph) {
@@ -179,7 +202,8 @@ func ans2(maze []string) int {
 	g := buildGraph(maze)
 	printGraph(g)
 	// 6581 is too high :)
-	return findLongestNOC(rc{0, 1}, rc{len(maze)-1, len(maze[0]) - 2}, g, map[rc]void{})
+	// return findLongestNOC(rc{0, 1}, rc{len(maze)-1, len(maze[0]) - 2}, g, map[rc]void{})
+	return findLongestBF(rc{0, 1}, rc{len(maze)-1, len(maze[0]) - 2}, g)
 }
 
 func main() {
