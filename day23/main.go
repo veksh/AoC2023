@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"log"
 	"os"
-
 	// "github.com/samber/lo"
 )
 
@@ -54,8 +53,8 @@ func getNeigh(maze []string, pos rc, prevPos rc) (good_neigh []rc, is_cross bool
 		if n.r > len(maze)-1 || n.r < 0 || n.c > len(maze[0])-1 || n.c < 0 {
 			continue
 		}
-		ns := maze[n.r][n.c]
-		if ns == '#' {
+		// only # are impassable
+		if maze[n.r][n.c] == '#' {
 			continue
 		}
 		not_walls += 1
