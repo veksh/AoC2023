@@ -163,6 +163,23 @@ func findLongestNOC(from rc, end rc, graph map[rc](map[rc]int), seen map[rc]void
 	return res
 }
 
+var ans2n = 0
+
+func findLongestNOC2(from rc, end rc, graph map[rc](map[rc]int), seen map[rc]void, dist int) {
+	if _, ok := seen[from]; ok {
+		return
+	}
+	if from == end {
+		ans2n = max(dist, ans2n)
+		return
+	}
+	seen[from] = void{}
+	for neigh, length := range(graph[from]) {
+		findLongestNOC2(neigh, end, graph, seen, dist + length)
+	}
+	delete(seen, from)
+}
+
 func findShortestBF(from rc, end rc, graph map[rc](map[rc]int)) int {
 	parent, dist := map[rc]rc{}, map[rc]int{}
 	for v := range(graph) {
@@ -190,7 +207,7 @@ func findLongestBF(from rc, end rc, graph map[rc](map[rc]int)) int {
 		parents[v] = map[rc]void{}
 	}
 	relaxed := true
-	for i := 0; i <= len(graph) && relaxed; i++ {
+	for i := 0; i <= len(graph)*2 && relaxed; i++ {
 		relaxed = false
 		for v, neigh := range(graph) {
 			if dist[v] == 0 && v != from {
@@ -198,17 +215,23 @@ func findLongestBF(from rc, end rc, graph map[rc](map[rc]int)) int {
 			}
 			for n, nDist := range(neigh) {
 				if dist[n] < dist[v] + nDist {
-					if _,ok := parents[v][n]; !ok {
-						fmt.Printf("ok, parents of %v (%v) do not have %v\n", v, parents[v], n)
-						dist[n] = dist[v] + nDist
-						parents[n] = maps.Clone(parents[v])
-						parents[n][v] = void{}
-						parent[n] = v
-  					relaxed = true
-	  				fmt.Printf("=> node %v: parent %v dist %d parents %v\n", n, v, dist[v] + nDist, parents[n])
+					if _,ok := parents[v][n]; ok {
+						continue
 					}
+					if _,ok := parents[n][v]; ok && !(parent[n] == v) {
+						continue
+					}
+					dist[n] = dist[v] + nDist
+					parents[n] = maps.Clone(parents[v])
+					parents[n][v] = void{}
+					parent[n] = v
+					relaxed = true
+  				fmt.Printf("%v <- %v total %d parents %v\n", n, v, dist[n], parents[n])
 				}
 			}
+		}
+		if !relaxed {
+			fmt.Println("unable to relax any more")
 		}
 	}
 	fmt.Println("resultng path:", parents[end])
@@ -237,7 +260,9 @@ func ans2(maze []string) int {
 	printGraph(g)
 	// 6581 is too high :)
 	// return findLongestNOC(rc{0, 1}, rc{len(maze)-1, len(maze[0]) - 2}, g, map[rc]void{})
-	return findLongestBF(rc{0, 1}, rc{len(maze)-1, len(maze[0]) - 2}, g)
+	// return findLongestBF(rc{0, 1}, rc{len(maze)-1, len(maze[0]) - 2}, g)
+	findLongestNOC2(rc{0, 1}, rc{len(maze)-1, len(maze[0]) - 2}, g, map[rc]void{}, 0)
+	return ans2n
 }
 
 func main() {
