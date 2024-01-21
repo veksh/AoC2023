@@ -4,6 +4,7 @@ import (
 	"bufio"
 	"fmt"
 	"log"
+	"maps"
 	"math"
 	"os"
 	// "github.com/samber/lo"
@@ -121,10 +122,12 @@ func buildGraph(maze []string) map[rc](map[rc]int) {
 			edges[edge_start][curr] = edge_len
 			// add reverse edge and do not go out from this node via this path
 			seen[prev] = void{}
-			if _, ok := edges[curr]; !ok {
-				edges[curr] = map[rc]int{}
+			if edge_start != start {
+				if _, ok := edges[curr]; !ok {
+					edges[curr] = map[rc]int{}
+				}
+				edges[curr][edge_start] = edge_len
 			}
-			edges[curr][edge_start] = edge_len
 			for _, n := range(nexts) {
 				q = append(q, pathVector{curr, n})
 			}
@@ -160,7 +163,7 @@ func findLongestNOC(from rc, end rc, graph map[rc](map[rc]int), seen map[rc]void
 	return res
 }
 
-func findLongestBF(from rc, end rc, graph map[rc](map[rc]int)) int {
+func findShortestBF(from rc, end rc, graph map[rc](map[rc]int)) int {
 	parent, dist := map[rc]rc{}, map[rc]int{}
 	for v := range(graph) {
 		dist[v] = math.MaxInt32
@@ -171,16 +174,47 @@ func findLongestBF(from rc, end rc, graph map[rc](map[rc]int)) int {
 		for v, neigh := range(graph) {
 			for n, nDist := range(neigh) {
 				if dist[n] > dist[v] + nDist {
-					fmt.Printf("%v: dist %d parent %v\n", n, dist[v] + nDist, v)
+					fmt.Printf("node %v: parent %v dist %d\n", n, v, dist[v] + nDist)
 					dist[n] = dist[v] + nDist
 					parent[n] = v
 				}
 			}
 		}
 	}
-	fmt.Println(dist)
 	return dist[end]
 }
+
+func findLongestBF(from rc, end rc, graph map[rc](map[rc]int)) int {
+	dist, parents, parent := map[rc]int{}, map[rc]map[rc]void{}, map[rc]rc{}
+	for v := range(graph) {
+		parents[v] = map[rc]void{}
+	}
+	relaxed := true
+	for i := 0; i <= len(graph) && relaxed; i++ {
+		relaxed = false
+		for v, neigh := range(graph) {
+			for n, nDist := range(neigh) {
+				if dist[v] == 0 && v != from {
+					continue
+				}
+				if dist[n] < dist[v] + nDist {
+					if _,ok := parents[v][n]; !ok || parent[n] == v {
+						fmt.Printf("ok, parents of %v (%v) do not have %v\n", v, parents[v], n)
+						dist[n] = dist[v] + nDist
+						parents[n] = maps.Clone(parents[v])
+						parents[n][v] = void{}
+						parent[n] = v
+  					relaxed = true
+	  				fmt.Printf("node %v: parent %v dist %d parents %v\n", n, v, dist[v] + nDist, parents[n])
+					}
+				}
+			}
+		}
+	}
+	fmt.Println("resultng path:", parents[end])
+	return dist[end]
+}
+
 
 func printGraph(graph map[rc](map[rc]int)) {
 	fmt.Println("edges:")
