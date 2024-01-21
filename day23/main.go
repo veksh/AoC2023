@@ -4,8 +4,8 @@ import (
 	"bufio"
 	"fmt"
 	"log"
-	"math"
 	"os"
+	// "github.com/samber/lo"
 )
 
 type rc  struct {r, c int}
@@ -145,23 +145,7 @@ func findLongest(from rc, end rc, graph map[rc](map[rc]int)) int {
 	return res
 }
 
-func findLongestNOC(from rc, end rc, graph map[rc](map[rc]int), seen map[rc]void) int {
-	if from == end {
-		return 0
-	}
-	res := 0
-	seen[from] = void{}
-	for neigh, length := range(graph[from]) {
-		if _, ok := seen[neigh]; ok {
-			continue
-		}
-		res = max(res, length + findLongestNOC(neigh, end, graph, seen))
-	}
-	delete(seen, from)
-	return res
-}
-
-func findLongestNOC2(from rc, end rc, graph map[rc](map[rc]int), seen map[rc]void, dist int, res *int) {
+func findLongestAll(from rc, end rc, graph map[rc](map[rc]int), seen map[rc]void, dist int, res *int) {
 	if _, ok := seen[from]; ok {
 		return
 	}
@@ -173,30 +157,9 @@ func findLongestNOC2(from rc, end rc, graph map[rc](map[rc]int), seen map[rc]voi
 	}
 	seen[from] = void{}
 	for neigh, length := range(graph[from]) {
-		findLongestNOC2(neigh, end, graph, seen, dist + length, res)
+		findLongestAll(neigh, end, graph, seen, dist + length, res)
 	}
 	delete(seen, from)
-}
-
-func findShortestBF(from rc, end rc, graph map[rc](map[rc]int)) int {
-	parent, dist := map[rc]rc{}, map[rc]int{}
-	for v := range(graph) {
-		dist[v] = math.MaxInt32
-	}
-	dist[from] = 0
-	dist[end] = math.MaxInt32
-	for i := 0; i <= len(graph); i++ {
-		for v, neigh := range(graph) {
-			for n, nDist := range(neigh) {
-				if dist[n] > dist[v] + nDist {
-					fmt.Printf("node %v: parent %v dist %d\n", n, v, dist[v] + nDist)
-					dist[n] = dist[v] + nDist
-					parent[n] = v
-				}
-			}
-		}
-	}
-	return dist[end]
 }
 
 func printGraph(graph map[rc](map[rc]int)) {
@@ -219,7 +182,7 @@ func ans2(maze []string) int {
 	g := buildGraph(maze)
 	printGraph(g)
 	a2 := 0
-	findLongestNOC2(rc{0, 1}, rc{len(maze)-1, len(maze[0]) - 2}, g, map[rc]void{}, 0, &a2)
+	findLongestAll(rc{0, 1}, rc{len(maze)-1, len(maze[0]) - 2}, g, map[rc]void{}, 0, &a2)
 	return a2
 }
 
