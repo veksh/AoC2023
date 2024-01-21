@@ -193,19 +193,19 @@ func findLongestBF(from rc, end rc, graph map[rc](map[rc]int)) int {
 	for i := 0; i <= len(graph) && relaxed; i++ {
 		relaxed = false
 		for v, neigh := range(graph) {
+			if dist[v] == 0 && v != from {
+				continue
+			}
 			for n, nDist := range(neigh) {
-				if dist[v] == 0 && v != from {
-					continue
-				}
 				if dist[n] < dist[v] + nDist {
-					if _,ok := parents[v][n]; !ok || parent[n] == v {
+					if _,ok := parents[v][n]; !ok {
 						fmt.Printf("ok, parents of %v (%v) do not have %v\n", v, parents[v], n)
 						dist[n] = dist[v] + nDist
 						parents[n] = maps.Clone(parents[v])
 						parents[n][v] = void{}
 						parent[n] = v
   					relaxed = true
-	  				fmt.Printf("node %v: parent %v dist %d parents %v\n", n, v, dist[v] + nDist, parents[n])
+	  				fmt.Printf("=> node %v: parent %v dist %d parents %v\n", n, v, dist[v] + nDist, parents[n])
 					}
 				}
 			}
