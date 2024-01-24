@@ -3,15 +3,21 @@
 import sys
 from collections import defaultdict, deque
 
-lines = [l.replace(":", "").split() for l in open(sys.argv[1]).read().rstrip("\n").splitlines()]
-edges = defaultdict(set)
-for l in lines:
-  n = l[0]
-  for p in l[1:]:
-    edges[n].add(p)
-    edges[p].add(n)
-#for n, edges in nodes.items():
-#  print("%s: vals %s" % (n, edges))
+# find a subset of nodes reachable from start while avoiding edges in taboo
+# proper min cut is a bit harder, but our weights are 1
+def reachable(edges, start, taboo):
+  q = deque([start])
+  visited = set()
+  while len(q) > 0:
+    e = q.pop()
+    if e in visited:
+      continue
+    visited.add(e)
+    for nn in edges[e]:
+      if (e, nn) in taboo or (nn, e) in taboo or nn in visited:
+        continue
+      q.appendleft(nn)
+  return visited
 
 # lets find N independent paths from s to f (where N <= min(num of neighbours of s or f))
 # if N == 3, cutting them (by severing first edges leading from s) will split a graph
@@ -47,6 +53,17 @@ def findPathStarts(edges, s, f):
         queue.appendleft(tip)
   return ans, usedEdges
 
+## main part
+lines = [l.replace(":", "").split() for l in open(sys.argv[1]).read().rstrip("\n").splitlines()]
+edges = defaultdict(set)
+for l in lines:
+  n = l[0]
+  for p in l[1:]:
+    edges[n].add(p)
+    edges[p].add(n)
+#for n, edges in nodes.items():
+#  print("%s: vals %s" % (n, edges))
+
 nodes = edges.keys()
 for i, s in enumerate(nodes):
   for j, d in enumerate(list(nodes)[i+1:]):
@@ -55,26 +72,12 @@ for i, s in enumerate(nodes):
       break
   if len(ps) == 3:
     break
-print("found: %s to %s via %s" % (s, d, ps))
+print("found a pair: %s to %s via %s" % (s, d, ps))
 
-def reachable(edges, start, taboo):
-  q = deque([start])
-  visited = set()
-  while len(q) > 0:
-    e = q.pop()
-    if e in visited:
-      continue
-    visited.add(e)
-    for nn in edges[e]:
-      if (e, nn) in taboo or (nn, e) in taboo or nn in visited:
-        continue
-      q.appendleft(nn)
-  return visited
-
-print("total:", len(edges), "==", len(reachable(edges, s, set())))
-print("taboo:", usedEdges)
+# print("total:", len(edges), "==", len(reachable(edges, s, set())))
+# print("taboo:", usedEdges)
 fs = len(reachable(edges, s, usedEdges))
 fd = len(reachable(edges, d, usedEdges))
-print("from %s: %d, from %s: %d" % (s, fs, d, fd))
+print("reachable from %s: %d, from %s: %d" % (s, fs, d, fd))
 print("ans1:", fs*fd)
 
