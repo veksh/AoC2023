@@ -59,3 +59,25 @@ for i, s in enumerate(nodes):
   if len(ps) == 3:
     break
 print("found: %s to %s via %s" % (s, d, ps))
+
+def subsetSize(edges, n, taboo):
+  q = deque([s])
+  visited = set()
+  while len(q) > 0:
+    e = q.pop()
+    if e in visited:
+      continue
+    visited.add(e)
+    for n in edges[e]:
+      if (n, e) in taboo or n in visited:
+        continue
+      q.appendleft(n)
+  return len(visited)
+
+print("total:", len(edges), "or", subsetSize(edges, s, set()))
+taboo_edges = set([(s, n) for n in ps])
+print("taboo:", taboo_edges)
+fs = subsetSize(edges, s, taboo_edges)
+fd = subsetSize(edges, d, taboo_edges)
+print("from %s: %d, from %s: %d" % (s, fs, d, fd))
+print("ans1:", fs*fd)
