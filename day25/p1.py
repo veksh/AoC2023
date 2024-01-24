@@ -17,7 +17,7 @@ for l in lines:
 # if N == 3, cutting them (by severing first edges leading from s) will split a graph
 def findPathStarts(edges, s, f):
   # print("walking from %s to %s" % (s, f))
-  ans = set()
+  ans = []
   usedEdges = set()
   for n in edges[s]:
     visited = set([s])
@@ -30,11 +30,12 @@ def findPathStarts(edges, s, f):
       # print(" looking at", e)
       visited.add(e)
       if e == f:
-        # print("  reached", f, "starting from", n, "parent", parent[e])
-        ans.add(n)
-        while parent[e] != s:
+        # print("  reached", f, "starting from", n)
+        ans.append([])
+        while parent[e] != None:
           # print("   via", parent[e])
           usedEdges.add((parent[e], e))
+          ans[-1].append((e, parent[e]))
           e = parent[e]
         break
       for tip in edges[e]:
@@ -45,22 +46,22 @@ def findPathStarts(edges, s, f):
         parent[tip] = e
         # print("  adding to queue:", tip)
         queue.appendleft(tip)
-  return ans
+  return ans, usedEdges
 
-# print("*** starts for cmg->bvb:", findPathStarts(edges, 'cmg', 'bvb'))
-# print("*** starts for cmg->frs:", findPathStarts(edges, 'cmg', 'frs'))
+#print("*** starts for cmg->bvb:", findPathStarts(edges, 'cmg', 'bvb'))
+#print("*** starts for cmg->frs:", findPathStarts(edges, 'cmg', 'frs'))
 
 nodes = edges.keys()
 for i, s in enumerate(nodes):
   for j, d in enumerate(list(nodes)[i+1:]):
-    ps = findPathStarts(edges, s, d)
+    ps, usedEdges = findPathStarts(edges, s, d)
     if len(ps) == 3:
       break
   if len(ps) == 3:
     break
 print("found: %s to %s via %s" % (s, d, ps))
 
-def subsetSize(edges, start, taboo):
+def reachable(edges, start, taboo):
   q = deque([start])
   visited = set()
   while len(q) > 0:
@@ -72,16 +73,18 @@ def subsetSize(edges, start, taboo):
       if (e, nn) in taboo or (nn, e) in taboo or nn in visited:
         continue
       q.appendleft(nn)
-  return len(visited)
+  return visited
 
-te_test = set([("hfx", "pzl"), ("bvb", "cmg"), ("nvd", "jqt")])
-print("from bvb:", subsetSize(edges, "bvb", te_test))
-print("from cmg:", subsetSize(edges, "cmg", te_test))
+# te_test = set([("hfx", "pzl"), ("bvb", "cmg"), ("nvd", "jqt")])
+# print("from bvb:", reachable(edges, "bvb", te_test))
+# print("from cmg:", reachable(edges, "cmg", te_test))
 
-print("total:", len(edges), "or", subsetSize(edges, s, set()))
-taboo_edges = set([(s, n) for n in ps])
-print("taboo:", taboo_edges)
-fs = subsetSize(edges, s, taboo_edges)
-fd = subsetSize(edges, d, taboo_edges)
+print("total:", len(edges), "==", len(reachable(edges, s, set())))
+print("taboo:", usedEdges)
+fs = len(reachable(edges, s, usedEdges))
+fd = len(reachable(edges, d, usedEdges))
 print("from %s: %d, from %s: %d" % (s, fs, d, fd))
 print("ans1:", fs*fd)
+
+print("from cmg:", sorted(reachable(edges, "cmg", usedEdges)))
+print("from bvb:", sorted(reachable(edges, "bvb", usedEdges)))
