@@ -17,29 +17,34 @@ for n, edges in nodes.items():
 # lets find N independent paths from s to f (where N <= min(num of neighbours of s or f))
 # if N == 3, cutting them (by severing first edges leading from s) will split a graph
 def findPathEnds(nodes, s, f):
-  print("walking from", s, "to", f)
+  print("walking from %s to %s" % (s, f))
   ans = set()
-  preVisited = set([s])
+  usedEdges = set()
   for n in nodes[s]:
-    visited = preVisited.copy()
-    print("trying", n, "excluding", visited)
+    visited = set([s])
+    print("trying", n, ", seen edges", usedEdges)
+    usedEdges.add((s, n))
     queue = deque([n])
-    parent = {n: s}
+    parent = {n: s, s: None}
     while len(queue) > 0:
       e = queue.pop()
+      print(" looking at", e)
       visited.add(e)
       if e == f:
-        print(" reached", f, "starting from", n)
+        print("  reached", f, "starting from", n, "parent", parent[e])
         ans.add(n)
         while parent[e] != s:
+          print("   via", parent[e])
+          usedEdges.add((parent[e], e))
           e = parent[e]
-          print("  via", e)
-          preVisited.add(e)
         break
       for tip in nodes[e]:
-        if tip in visited:
+        if (e, tip) in usedEdges:
+          continue
+        if tip in parent:
           continue
         parent[tip] = e
+        print("  adding to queue:", tip)
         queue.appendleft(tip)
   return ans
 
