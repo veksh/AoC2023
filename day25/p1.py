@@ -22,7 +22,6 @@ def findPathStarts(edges, s, f):
   for n in edges[s]:
     visited = set([s])
     # print("trying", n, ", seen edges", usedEdges)
-    usedEdges.add((s, n))
     queue = deque([n])
     parent = {n: s, s: None}
     while len(queue) > 0:
@@ -48,9 +47,6 @@ def findPathStarts(edges, s, f):
         queue.appendleft(tip)
   return ans, usedEdges
 
-#print("*** starts for cmg->bvb:", findPathStarts(edges, 'cmg', 'bvb'))
-#print("*** starts for cmg->frs:", findPathStarts(edges, 'cmg', 'frs'))
-
 nodes = edges.keys()
 for i, s in enumerate(nodes):
   for j, d in enumerate(list(nodes)[i+1:]):
@@ -75,10 +71,6 @@ def reachable(edges, start, taboo):
       q.appendleft(nn)
   return visited
 
-# te_test = set([("hfx", "pzl"), ("bvb", "cmg"), ("nvd", "jqt")])
-# print("from bvb:", reachable(edges, "bvb", te_test))
-# print("from cmg:", reachable(edges, "cmg", te_test))
-
 print("total:", len(edges), "==", len(reachable(edges, s, set())))
 print("taboo:", usedEdges)
 fs = len(reachable(edges, s, usedEdges))
@@ -86,5 +78,3 @@ fd = len(reachable(edges, d, usedEdges))
 print("from %s: %d, from %s: %d" % (s, fs, d, fd))
 print("ans1:", fs*fd)
 
-print("from cmg:", sorted(reachable(edges, "cmg", usedEdges)))
-print("from bvb:", sorted(reachable(edges, "bvb", usedEdges)))
