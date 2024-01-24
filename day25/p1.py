@@ -31,9 +31,9 @@ def findPathEnds(nodes, s, f):
       if e == f:
         print(" reached", f, "starting from", n)
         ans.add(n)
-        while e in parent:
-          print("  via", e)
+        while parent[e] != s:
           e = parent[e]
+          print("  via", e)
           preVisited.add(e)
         break
       for tip in nodes[e]:
